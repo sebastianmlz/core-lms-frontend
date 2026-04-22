@@ -1,0 +1,16 @@
+:host {
+  display: block;
+}
+
+.course-card {
+  background:
+    radial-gradient(120% 120% at 100% 0%, rgba(20, 184, 166, 0.12), transparent 55%),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.course-card:hover {
+  transform: translateY(-2px);
+  border-color: rgb(45 212 191 / 0.35);
+  box-shadow: 0 12px 24px -18px rgb(15 23 42 / 0.45);
+}

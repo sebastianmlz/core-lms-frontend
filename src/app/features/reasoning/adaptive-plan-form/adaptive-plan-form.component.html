@@ -1,0 +1,86 @@
+<section class="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+  <header>
+    <h2 class="text-lg font-semibold">Plan Adaptativo VARK</h2>
+    <p class="text-sm text-slate-600">
+      Ingresa student_id, course_id y failed_topics para invocar al microservicio Axiom.
+    </p>
+  </header>
+
+  <form class="grid gap-3 md:grid-cols-2" [formGroup]="form" (ngSubmit)="submit()">
+    <label class="space-y-1 text-sm font-medium text-slate-700">
+      <span>Student ID</span>
+      <input class="w-full rounded-lg border border-slate-300 px-3 py-2" formControlName="studentId" type="text" />
+    </label>
+
+    <label class="space-y-1 text-sm font-medium text-slate-700">
+      <span>Course ID</span>
+      <input class="w-full rounded-lg border border-slate-300 px-3 py-2" formControlName="courseId" type="text" />
+    </label>
+
+    <label class="space-y-1 text-sm font-medium text-slate-700 md:col-span-2">
+      <span>Failed Topics (separados por coma)</span>
+      <input
+        class="w-full rounded-lg border border-slate-300 px-3 py-2"
+        formControlName="failedTopics"
+        placeholder="Polymorphism, Recursion"
+        type="text"
+      />
+    </label>
+
+    <label class="space-y-1 text-sm font-medium text-slate-700">
+      <span>Perfil VARK (backend)</span>
+      <select class="w-full rounded-lg border border-slate-300 px-3 py-2" formControlName="varkProfile">
+        <option value="visual">visual</option>
+        <option value="aural">aural</option>
+        <option value="read_write">read_write</option>
+        <option value="kinesthetic">kinesthetic</option>
+      </select>
+    </label>
+
+    <div class="flex items-end">
+      <p-button
+        [loading]="reasoningStore.isLoadingPlan()"
+        [disabled]="reasoningStore.isLoadingPlan()"
+        label="Generar plan"
+        type="submit"
+      />
+    </div>
+  </form>
+
+  @if (reasoningStore.adaptivePlan(); as adaptivePlan) {
+    <section class="space-y-3 rounded-xl border border-sky-200 bg-sky-50 p-4">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h3 class="text-base font-semibold">Resultado adaptativo</h3>
+        <p class="text-xs text-slate-600">
+          Items: {{ adaptivePlan.items.length }} | LLM: {{ adaptivePlan._meta.llm_latency_ms }} ms
+        </p>
+      </div>
+
+      @for (item of adaptivePlan.items; track trackByTopic($index, item)) {
+        <article class="rounded-lg bg-white p-3">
+          <p class="font-semibold">#{{ item.priority }} {{ item.topic }}</p>
+          <p class="mt-1 text-sm text-slate-700">{{ item.explanation }}</p>
+          <p class="mt-1 text-xs text-slate-500">
+            Cadena prerequisito: {{ item.prerequisite_chain.join(' -> ') || 'N/A' }}
+          </p>
+          <ul class="mt-2 list-disc space-y-1 pl-4 text-xs text-slate-600">
+            @for (resource of item.resources; track resource.url) {
+              <li>
+                {{ resource.resource_type }} -
+                <a class="font-medium text-teal-700 underline" [href]="resource.url" rel="noreferrer" target="_blank">
+                  {{ resource.title }}
+                </a>
+              </li>
+            }
+          </ul>
+        </article>
+      }
+    </section>
+  }
+
+  @if (reasoningStore.error(); as errorMessage) {
+    <p class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+      {{ errorMessage }}
+    </p>
+  }
+</section>

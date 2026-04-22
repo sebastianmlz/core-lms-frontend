@@ -1,0 +1,9 @@
+:host {
+  display: block;
+}
+
+.tutor-hero {
+  background:
+    radial-gradient(100% 120% at 90% 10%, rgba(45, 212, 191, 0.2), transparent 45%),
+    linear-gradient(110deg, #0f172a 0%, #1e293b 60%, #0f1f3a 100%);
+}

@@ -1,13 +1,18 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Button } from 'primeng/button';
+import { SessionStore, SessionStoreType } from './entities/session/model/session.store';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Button],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
-  protected readonly title = signal('core-lms-frontend');
+  private readonly sessionStore = inject(SessionStore) as SessionStoreType;
+
+  constructor() {
+    this.sessionStore.hydrate();
+  }
 }

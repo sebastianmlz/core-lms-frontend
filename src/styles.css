@@ -8,3 +8,13 @@
     @tailwind components;
     @tailwind utilities;
 }
+
+:root {
+    color-scheme: light;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+    background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+}

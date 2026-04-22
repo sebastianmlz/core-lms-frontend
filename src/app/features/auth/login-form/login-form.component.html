@@ -1,0 +1,49 @@
+<form class="space-y-6" [formGroup]="form" (ngSubmit)="submit()">
+  <div class="space-y-2">
+    <label class="text-sm font-semibold text-slate-700" for="username">Usuario</label>
+    <input
+      id="username"
+      class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+      formControlName="username"
+      placeholder="ej. estudiante1"
+      type="text"
+    />
+  </div>
+
+  <div class="space-y-2">
+    <label class="text-sm font-semibold text-slate-700" for="password">Contrasena</label>
+    <input
+      id="password"
+      class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+      formControlName="password"
+      placeholder="********"
+      type="password"
+    />
+  </div>
+
+  <div class="space-y-2">
+    <label class="text-sm font-semibold text-slate-700" for="role">Rol de trabajo</label>
+    <select
+      id="role"
+      class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+      formControlName="role"
+    >
+      <option value="STUDENT">STUDENT</option>
+      <option value="TUTOR">TUTOR</option>
+    </select>
+  </div>
+
+  @if (sessionStore.error(); as errorMessage) {
+    <p class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+      {{ errorMessage }}
+    </p>
+  }
+
+  <p-button
+    [disabled]="sessionStore.isLoading()"
+    [loading]="sessionStore.isLoading()"
+    label="Iniciar sesion"
+    severity="primary"
+    type="submit"
+  />
+</form>

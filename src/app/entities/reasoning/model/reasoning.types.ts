@@ -37,6 +37,16 @@ export interface AdaptivePlanResponse {
   _meta: AdaptivePlanMeta;
 }
 
+export type DiagnosticExecutionMode = 'sync' | 'async';
+
+export type DiagnosticExecutionStatus =
+  | 'idle'
+  | 'loading'
+  | 'success'
+  | 'fallback'
+  | 'pending'
+  | 'error';
+
 export interface CognitiveGraphNode {
   id: string;
   label: string;
@@ -60,5 +70,10 @@ export interface ReasoningState {
   cognitiveGraph: CognitiveGraphResponse | null;
   isLoadingPlan: boolean;
   isLoadingGraph: boolean;
+  diagnosticMode: DiagnosticExecutionMode;
+  diagnosticStatus: DiagnosticExecutionStatus;
+  lastAttemptId: number | null;
+  jobId: string | null;
+  fallbackReason: string | null;
   error: string | null;
 }

@@ -1,0 +1,74 @@
+<div class="space-y-6">
+  <header class="border-b border-slate-200 pb-4">
+    <h2 class="text-xs font-bold uppercase tracking-widest text-slate-500">Panel de Evaluación</h2>
+    <h1 class="mt-1 text-2xl font-black text-slate-800">{{ lesson.title }}</h1>
+  </header>
+
+  @if (isLoading()) {
+    <div class="flex h-32 items-center justify-center">
+       <i class="pi pi-spin pi-spinner text-3xl text-cyan-500"></i>
+    </div>
+  } @else if (assignment(); as tarea) {
+    <div class="rounded-xl border border-indigo-200 bg-indigo-50 p-6 shadow-sm">
+      <div class="flex items-center gap-3 mb-2">
+        <i class="pi pi-briefcase text-xl text-indigo-500"></i>
+        <h3 class="font-bold text-slate-800">Tarea: {{ tarea.title }}</h3>
+      </div>
+      <p class="text-sm text-slate-600 mb-6">{{ tarea.description }}</p>
+
+      <div class="space-y-4">
+        @if (submissions().length === 0) {
+           <p class="text-sm font-semibold text-slate-500 italic p-4 text-center border-t border-indigo-100">No hay entregas registradas para esta tarea aún.</p>
+        }
+        @for (sub of submissions(); track sub.id) {
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-lg bg-white p-4 border border-slate-200 shadow-sm">
+             <div class="flex items-center gap-4 flex-1">
+               <div class="flex h-10 w-10 items-center justify-center rounded-full text-slate-600 font-bold bg-slate-100">
+                  <i class="pi pi-user"></i>
+               </div>
+               <div>
+                  <p class="font-bold text-slate-800 text-sm">Estudiante ID: {{ sub.student }}</p>
+                  <p class="text-xs text-slate-500">Enviado: {{ sub.submitted_at | date:'short' }}</p>
+               </div>
+             </div>
+
+             <div class="flex items-center gap-4">
+                @if (sub.file) {
+                  <p-button icon="pi pi-download" label="Archivo" size="small" [outlined]="true" severity="secondary" (onClick)="downloadSubmission($any(sub.file))"></p-button>
+                }
+                <div class="h-8 w-px bg-slate-200"></div>
+
+                <div class="flex items-center gap-2 relative">
+                   <p-inputNumber
+                      [ngModel]="getDraftGrade(sub.id)"
+                      (ngModelChange)="setDraftGrade(sub.id, $event)"
+                      inputStyleClass="w-20 text-center font-bold text-sm"
+                      [min]="0"
+                      [max]="tarea.max_score"
+                   ></p-inputNumber>
+                   <span class="text-xs font-bold text-slate-400">/ {{ tarea.max_score }}</span>
+
+                   @if (getDraftGrade(sub.id) !== undefined && getDraftGrade(sub.id) !== sub.grade) {
+                     <p-button
+                       icon="pi pi-save"
+                       size="small"
+                       [rounded]="true"
+                       [loading]="isSubmitting() === sub.id"
+                       severity="success"
+                       title="Guardar Calificacion"
+                       (onClick)="saveGrade(sub)"></p-button>
+                   }
+                </div>
+             </div>
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="flex flex-col h-[200px] items-center justify-center p-8 text-center bg-white rounded-2xl border border-slate-200">
+       <i class="pi pi-check-circle text-4xl mb-4 text-slate-300"></i>
+       <p class="font-semibold text-slate-600">No hay Evaluación Asignada</p>
+       <p class="text-xs text-slate-400 mt-2 max-w-sm">Esta lección es exclusivamente teórica o de revisión. No requiere asignar calificaciones en rúbricas.</p>
+    </div>
+  }
+</div>

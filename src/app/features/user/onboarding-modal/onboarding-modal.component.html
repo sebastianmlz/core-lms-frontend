@@ -1,0 +1,85 @@
+<p-dialog 
+  [visible]="visible()" 
+  [closable]="false" 
+  [modal]="true" 
+  [draggable]="false"
+  [resizable]="false"
+  header="Descubre tu Estilo de Aprendizaje"
+  [style]="{ width: '90vw', maxWidth: '600px' }"
+  styleClass="p-fluid">
+
+  <ng-template #header>
+    <div class="flex items-center gap-3">
+      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-indigo-700">
+        <i class="pi pi-compass text-xl"></i>
+      </div>
+      <div>
+        <h2 class="text-xl font-bold text-slate-800">Bienvenido a AxiomLMS</h2>
+        <p class="text-sm font-normal text-slate-500">
+          Personalicemos el contenido de inteligencia artificial a tu estilo de estudio.
+        </p>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="mt-4 space-y-6">
+    <p class="text-sm text-slate-700">
+      Califica del 0 al 10 en base a tus preferencias actuales. No hay respuestas correctas o incorrectas.
+    </p>
+
+    <!-- Visual -->
+    <div class="space-y-2 rounded-xl bg-slate-50 p-4 border border-slate-200">
+      <div class="flex items-center justify-between">
+        <label class="font-semibold text-slate-800">Visual</label>
+        <span class="text-xs font-bold text-indigo-600 bg-indigo-100 px-2 py-1 rounded-md">{{ visualScore }}/10</span>
+      </div>
+      <p class="text-xs text-slate-600 mb-4">Me aprendo mejor los conceptos cuando uso diagramas, mapas mentales e imágenes.</p>
+      <p-slider [(ngModel)]="visualScore" [min]="0" [max]="10"></p-slider>
+    </div>
+
+    <!-- Aural -->
+    <div class="space-y-2 rounded-xl bg-slate-50 p-4 border border-slate-200">
+      <div class="flex items-center justify-between">
+        <label class="font-semibold text-slate-800">Auditivo (Aural)</label>
+        <span class="text-xs font-bold text-indigo-600 bg-indigo-100 px-2 py-1 rounded-md">{{ auralScore }}/10</span>
+      </div>
+      <p class="text-xs text-slate-600 mb-4">Prefiero explicaciones orales, debatir el tema y escuchar grabaciones.</p>
+      <p-slider [(ngModel)]="auralScore" [min]="0" [max]="10"></p-slider>
+    </div>
+
+    <!-- Read/Write -->
+    <div class="space-y-2 rounded-xl bg-slate-50 p-4 border border-slate-200">
+      <div class="flex items-center justify-between">
+        <label class="font-semibold text-slate-800">Lecto-Escritura</label>
+        <span class="text-xs font-bold text-indigo-600 bg-indigo-100 px-2 py-1 rounded-md">{{ readWriteScore }}/10</span>
+      </div>
+      <p class="text-xs text-slate-600 mb-4">Mi mejor método es leer textos, manuales y tomar notas meticulosas.</p>
+      <p-slider [(ngModel)]="readWriteScore" [min]="0" [max]="10"></p-slider>
+    </div>
+
+    <!-- Kinestethic -->
+    <div class="space-y-2 rounded-xl bg-slate-50 p-4 border border-slate-200">
+      <div class="flex items-center justify-between">
+        <label class="font-semibold text-slate-800">Kinestésico</label>
+        <span class="text-xs font-bold text-indigo-600 bg-indigo-100 px-2 py-1 rounded-md">{{ kinestheticScore }}/10</span>
+      </div>
+      <p class="text-xs text-slate-600 mb-4">Entiendo más rápido si hago simulaciones, prácticas de laboratorio y ejercicios reales.</p>
+      <p-slider [(ngModel)]="kinestheticScore" [min]="0" [max]="10"></p-slider>
+    </div>
+    
+    @if (errorMessage()) {
+      <div class="text-red-600 text-sm font-semibold text-center">{{ errorMessage() }}</div>
+    }
+  </div>
+
+  <ng-template #footer>
+    <div class="flex justify-end pt-4">
+      <p-button 
+        label="Completar Perfil" 
+        icon="pi pi-check" 
+        [loading]="isSubmitting()"
+        (onClick)="submitAnswers()">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>

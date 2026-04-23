@@ -20,19 +20,43 @@ export const routes: Routes = [
 				path: 'student',
 				canActivate: [roleGuard],
 				data: { role: 'STUDENT' },
-				loadComponent: () =>
-					import('./pages/student/dashboard-page/student-dashboard-page.component').then(
-						(m) => m.StudentDashboardPageComponent,
-					),
+				children: [
+					{
+						path: '',
+						loadComponent: () =>
+							import('./pages/student/dashboard-page/student-dashboard-page.component').then(
+								(m) => m.StudentDashboardPageComponent,
+							),
+					},
+					{
+						path: 'course/:courseId',
+						loadComponent: () =>
+							import('./pages/student/course-viewer-page/course-viewer-page.component').then(
+								(m) => m.CourseViewerPageComponent,
+							),
+					}
+				]
 			},
 			{
 				path: 'tutor',
 				canActivate: [roleGuard],
 				data: { role: 'TUTOR' },
-				loadComponent: () =>
-					import('./pages/tutor/dashboard-page/tutor-dashboard-page.component').then(
-						(m) => m.TutorDashboardPageComponent,
-					),
+				children: [
+					{
+						path: '',
+						loadComponent: () =>
+							import('./pages/tutor/dashboard-page/tutor-dashboard-page.component').then(
+								(m) => m.TutorDashboardPageComponent,
+							),
+					},
+					{
+						path: 'course/:courseId',
+						loadComponent: () =>
+							import('./pages/tutor/course-viewer-page/course-viewer-page.component').then(
+								(m) => m.TutorCourseViewerPageComponent,
+							),
+					}
+				]
 			},
 			{ path: '', pathMatch: 'full', redirectTo: 'student' },
 		],

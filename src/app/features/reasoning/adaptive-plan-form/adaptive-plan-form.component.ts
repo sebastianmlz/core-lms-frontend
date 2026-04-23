@@ -1,12 +1,20 @@
-import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, effect, inject, signal, computed } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SkeletonModule } from 'primeng/skeleton';
+import { Select } from 'primeng/select';
+import { RadioButton } from 'primeng/radiobutton';
+import { Timeline } from 'primeng/timeline';
+import { TreeTableModule } from 'primeng/treetable';
+import { TreeNode } from 'primeng/api';
+import { interval } from 'rxjs';
 import {
   AttemptAnswerInput,
   AttemptSubmitInput,
 } from '../../../entities/assessment/model/attempt.types';
+import { QuizStore, QuizStoreType } from '../../../entities/assessment/model/quiz.store';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
   CourseStore,
   CourseStoreType,
@@ -24,7 +32,7 @@ import { extractJwtPayload } from '../../../shared/lib/auth/jwt.utils';
 
 @Component({
   selector: 'app-adaptive-plan-form',
-  imports: [ReactiveFormsModule, Button, ProgressSpinnerModule, SkeletonModule],
+  imports: [ReactiveFormsModule, FormsModule, Button, ProgressSpinnerModule, SkeletonModule, Select, RadioButton, Timeline, TreeTableModule],
   templateUrl: './adaptive-plan-form.component.html',
   styleUrl: './adaptive-plan-form.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,20 +42,59 @@ export class AdaptivePlanFormComponent {
   readonly reasoningStore = inject(ReasoningStore) as ReasoningStoreType;
   readonly courseStore = inject(CourseStore) as CourseStoreType;
   readonly sessionStore = inject(SessionStore) as SessionStoreType;
+  readonly quizStore = inject(QuizStore) as QuizStoreType;
 
-  private lastDashboardCourseId: number | null = null;
   parseError: string | null = null;
+  selectedAnswers = signal<Record<number, number>>({});
 
   readonly form = this.formBuilder.group({
     studentId: this.formBuilder.nonNullable.control('', [Validators.required]),
     quizId: this.formBuilder.control<number | null>(null, [Validators.required, Validators.min(1)]),
-    answersJson: this.formBuilder.nonNullable.control(
-      '[\n  {"question_id": 1, "selected_choice_id": 1}\n]',
-      [Validators.required],
-    ),
+  });
+
+  cognitiveTreeNodes = computed<TreeNode[]>(() => {
+    const graph = this.reasoningStore.cognitiveGraph();
+    if (!graph) return [];
+
+    const nodeMap = new Map<string, TreeNode>();
+    
+    graph.nodes.forEach(n => {
+      nodeMap.set(n.id, {
+        data: { id: n.id, name: n.label, status: n.status },
+        expanded: true,
+        children: []
+      });
+    });
+
+    const roots: TreeNode[] = [];
+    const childIds = new Set<string>();
+
+    graph.edges.forEach(edge => {
+      // source dependends on target? then target is parent of source?
+      // For cognitive graph, typically source -> target means target is prerequisite
+      const parent = nodeMap.get(edge.target);
+      const child = nodeMap.get(edge.source);
+      if (parent && child) {
+        if (!parent.children) parent.children = [];
+        parent.children.push(child);
+        childIds.add(edge.source);
+      }
+    });
+
+    graph.nodes.forEach(n => {
+      if (!childIds.has(n.id)) {
+        const rootNode = nodeMap.get(n.id);
+        if (rootNode) roots.push(rootNode);
+      }
+    });
+
+    return roots.length > 0 ? roots : Array.from(nodeMap.values());
   });
 
   constructor() {
+    effect(() => {
+      void this.quizStore.loadQuizzes();
+    });
     effect(() => {
       const token = this.sessionStore.accessToken();
       const userId = this.extractUserIdFromToken(token);
@@ -62,16 +109,65 @@ export class AdaptivePlanFormComponent {
       }
     });
 
-    effect(() => {
-      const selectedCourseId = this.courseStore.selectedCourseId();
+    // (Removed Teacher loadCourseDashboard effect from Student view to prevent 403 Forbidden)
 
-      if (!selectedCourseId || this.lastDashboardCourseId === selectedCourseId) {
-        return;
-      }
-
-      this.lastDashboardCourseId = selectedCourseId;
-      void this.courseStore.loadCourseDashboard(selectedCourseId);
+    const quizIdSignal = toSignal(this.form.controls.quizId.valueChanges, { 
+      initialValue: this.form.controls.quizId.value 
     });
+
+    effect(() => {
+      const quizId = quizIdSignal();
+      if (quizId) {
+        void this.quizStore.loadQuizDetail(quizId);
+        this.selectedAnswers.set({});
+      } else {
+        this.quizStore.clearQuizDetail();
+      }
+    });
+
+    // Auto Long-Polling para asincronia
+    effect((onCleanup) => {
+      const status = this.reasoningStore.diagnosticStatus();
+      if (status === 'pending' || status === 'fallback') {
+        const sub = interval(4000).subscribe(() => {
+          void this.refreshAttemptStatus(true);
+        });
+
+        onCleanup(() => {
+          sub.unsubscribe();
+        });
+      }
+    });
+
+    effect(() => {
+      const plan = this.reasoningStore.adaptivePlan();
+      const studentIdStr = this.form.controls.studentId.value;
+      const graph = this.reasoningStore.cognitiveGraph();
+      const isLoading = this.reasoningStore.isLoadingGraph();
+
+      if (plan && !graph && !isLoading && studentIdStr) {
+        const topics = plan.items.map(i => i.topic);
+        if (topics.length > 0) {
+          void this.reasoningStore.loadCognitiveGraph(studentIdStr, topics);
+        }
+      }
+    });
+  }
+
+  onAnswerSelected(questionId: number, choiceId: number): void {
+    this.selectedAnswers.update((prev) => ({ ...prev, [questionId]: choiceId }));
+  }
+
+  isUiSubmitDisabled(): boolean {
+    if (this.reasoningStore.isLoadingPlan()) {
+      return true;
+    }
+    const detail = this.quizStore.selectedQuizDetail();
+    if (!detail) {
+      return true;
+    }
+    const answers = this.selectedAnswers();
+    return detail.questions.some((q) => answers[q.id] === undefined);
   }
 
   async submit(): Promise<void> {
@@ -84,7 +180,12 @@ export class AdaptivePlanFormComponent {
 
     const studentId = Number(this.form.controls.studentId.value);
     const quizId = this.form.controls.quizId.value;
-    const answers = this.parseAnswers(this.form.controls.answersJson.value);
+    
+    const selected = this.selectedAnswers();
+    const answers: AttemptAnswerInput[] = Object.entries(selected).map(([qId, cId]) => ({
+      question_id: Number(qId),
+      selected_choice_id: cId,
+    }));
 
     if (!Number.isInteger(studentId) || studentId <= 0) {
       this.parseError = 'Student ID debe ser un entero positivo.';
@@ -96,9 +197,8 @@ export class AdaptivePlanFormComponent {
       return;
     }
 
-    if (!answers) {
-      this.parseError =
-        'Answers JSON invalido. Usa un arreglo como: [{"question_id":1,"selected_choice_id":2}].';
+    if (answers.length === 0) {
+      this.parseError = 'Debe seleccionar al menos una respuesta válida.';
       return;
     }
 
@@ -111,14 +211,14 @@ export class AdaptivePlanFormComponent {
     await this.reasoningStore.runDiagnosticFromAttempt(payload);
   }
 
-  async refreshAttemptStatus(): Promise<void> {
+  async refreshAttemptStatus(silent = false): Promise<void> {
     const attemptId = this.reasoningStore.lastAttemptId();
 
     if (!attemptId || this.reasoningStore.isLoadingPlan()) {
       return;
     }
 
-    await this.reasoningStore.refreshAttemptResult(attemptId);
+    await this.reasoningStore.refreshAttemptResult(attemptId, { silent });
   }
 
   trackByTopic(index: number, item: AdaptivePlanItem): string {
@@ -147,48 +247,4 @@ export class AdaptivePlanFormComponent {
     return null;
   }
 
-  private parseAnswers(rawJson: string): AttemptAnswerInput[] | null {
-    let parsed: unknown;
-
-    try {
-      parsed = JSON.parse(rawJson);
-    } catch {
-      return null;
-    }
-
-    if (!Array.isArray(parsed) || parsed.length === 0) {
-      return null;
-    }
-
-    const normalized = parsed
-      .map((entry) => {
-        if (typeof entry !== 'object' || entry === null) {
-          return null;
-        }
-
-        const candidate = entry as Record<string, unknown>;
-        const questionId = Number(candidate['question_id']);
-        const selectedChoiceId = Number(candidate['selected_choice_id']);
-
-        if (!Number.isInteger(questionId) || questionId <= 0) {
-          return null;
-        }
-
-        if (!Number.isInteger(selectedChoiceId) || selectedChoiceId <= 0) {
-          return null;
-        }
-
-        return {
-          question_id: questionId,
-          selected_choice_id: selectedChoiceId,
-        } satisfies AttemptAnswerInput;
-      })
-      .filter((entry): entry is AttemptAnswerInput => entry !== null);
-
-    if (normalized.length !== parsed.length) {
-      return null;
-    }
-
-    return normalized;
-  }
 }

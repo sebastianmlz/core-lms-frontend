@@ -124,12 +124,14 @@ export const ReasoningStore = signalStore(
         });
       }
     },
-    async refreshAttemptResult(attemptId: number): Promise<void> {
-      patchState(store, {
-        isLoadingPlan: true,
-        diagnosticStatus: 'loading',
-        error: null,
-      });
+    async refreshAttemptResult(attemptId: number, options?: { silent?: boolean }): Promise<void> {
+      if (!options?.silent) {
+        patchState(store, {
+          isLoadingPlan: true,
+          diagnosticStatus: 'loading',
+          error: null,
+        });
+      }
 
       try {
         const attempt = await firstValueFrom(attemptApi.getAttempt(attemptId));

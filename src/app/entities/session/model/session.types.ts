@@ -23,6 +23,8 @@ export interface SessionState {
   refreshToken: string | null;
   activeRole: UserRole | null;
   username: string | null;
+  userId: number | null;
+  dominantVark: string | null; // AxiomVarkProfile en backend mappings
   isLoading: boolean;
   error: string | null;
 }

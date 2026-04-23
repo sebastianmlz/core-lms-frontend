@@ -6,12 +6,15 @@ import { SESSION_STORAGE_KEYS } from '../../../shared/config/api.config';
 import { extractJwtPayload } from '../../../shared/lib/auth/jwt.utils';
 import { AuthApiService } from '../api/auth.api';
 import { LoginCredentials, SessionState, UserRole } from './session.types';
+import { AxiomVarkProfile } from '../../../shared/lib/vark/vark.utils';
 
 const initialState: SessionState = {
   accessToken: null,
   refreshToken: null,
   activeRole: null,
   username: null,
+  userId: null,
+  dominantVark: null,
   isLoading: false,
   error: null,
 };
@@ -37,15 +40,12 @@ function writeStorageValue(key: string, value: string | null): void {
   }
 }
 
-function parseRoleFromToken(accessToken: string): UserRole | null {
+function parseDetailsFromToken(accessToken: string): { role: UserRole | null, userId: number | null } {
   const payload = extractJwtPayload(accessToken);
-  const value = payload?.['role'];
+  const role = (payload?.['role'] === 'STUDENT' || payload?.['role'] === 'TUTOR') ? payload['role'] : null;
+  const userId = typeof payload?.['user_id'] === 'number' ? payload['user_id'] : null;
 
-  if (value === 'STUDENT' || value === 'TUTOR') {
-    return value;
-  }
-
-  return null;
+  return { role, userId };
 }
 
 export const SessionStore = signalStore(
@@ -61,6 +61,8 @@ export const SessionStore = signalStore(
         refreshToken: readStorageValue(SESSION_STORAGE_KEYS.refreshToken),
         activeRole: (readStorageValue(SESSION_STORAGE_KEYS.activeRole) as UserRole | null) ?? null,
         username: readStorageValue(SESSION_STORAGE_KEYS.username),
+        userId: readStorageValue(SESSION_STORAGE_KEYS.userId) ? Number(readStorageValue(SESSION_STORAGE_KEYS.userId)) : null,
+        dominantVark: readStorageValue(SESSION_STORAGE_KEYS.dominantVark),
       });
     },
     async login(credentials: LoginCredentials): Promise<boolean> {
@@ -74,19 +76,22 @@ export const SessionStore = signalStore(
           }),
         );
 
-        const parsedRole = parseRoleFromToken(response.access);
-        const activeRole = response.role ?? parsedRole ?? credentials.preferredRole;
+        const parsedDetails = parseDetailsFromToken(response.access);
+        const activeRole = response.role ?? parsedDetails.role ?? credentials.preferredRole;
+        const userId = parsedDetails.userId;
 
         writeStorageValue(SESSION_STORAGE_KEYS.accessToken, response.access);
         writeStorageValue(SESSION_STORAGE_KEYS.refreshToken, response.refresh);
         writeStorageValue(SESSION_STORAGE_KEYS.activeRole, activeRole);
         writeStorageValue(SESSION_STORAGE_KEYS.username, credentials.username);
+        writeStorageValue(SESSION_STORAGE_KEYS.userId, userId ? userId.toString() : null);
 
         patchState(store, {
           accessToken: response.access,
           refreshToken: response.refresh,
           activeRole,
           username: credentials.username,
+          userId,
           isLoading: false,
           error: null,
         });
@@ -109,11 +114,17 @@ export const SessionStore = signalStore(
       writeStorageValue(SESSION_STORAGE_KEYS.activeRole, role);
       patchState(store, { activeRole: role });
     },
+    setDominantVark(vark: string): void {
+      writeStorageValue(SESSION_STORAGE_KEYS.dominantVark, vark);
+      patchState(store, { dominantVark: vark });
+    },
     logout(): void {
       writeStorageValue(SESSION_STORAGE_KEYS.accessToken, null);
       writeStorageValue(SESSION_STORAGE_KEYS.refreshToken, null);
       writeStorageValue(SESSION_STORAGE_KEYS.activeRole, null);
       writeStorageValue(SESSION_STORAGE_KEYS.username, null);
+      writeStorageValue(SESSION_STORAGE_KEYS.userId, null);
+      writeStorageValue(SESSION_STORAGE_KEYS.dominantVark, null);
 
       patchState(store, { ...initialState });
       void router.navigate(['/login']);

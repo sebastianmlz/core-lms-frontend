@@ -1,11 +1,20 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { Button } from 'primeng/button';
 import { Dialog } from 'primeng/dialog';
 import { Slider } from 'primeng/slider';
 import { FormsModule } from '@angular/forms';
-import { SessionStore, SessionStoreType } from '../../../entities/session/model/session.store';
+import {
+  SessionStore,
+  SessionStoreType,
+} from '../../../entities/session/model/session.store';
 import { UserApiService } from '../../../entities/user/api/user.api';
-import { BackendVarkCategory, VarkOnboardingRequest } from '../../../entities/user/model/user.types';
+import { VarkOnboardingRequest } from '../../../entities/user/model/user.types';
 import { backendToAxiomVark } from '../../../shared/lib/vark/vark.utils';
 import { firstValueFrom } from 'rxjs';
 
@@ -49,14 +58,17 @@ export class OnboardingModalComponent {
     };
 
     try {
-      const response = await firstValueFrom(this.userApi.submitVarkOnboarding(this.sessionStore.userId()!, payload));
-      
+      const response = await firstValueFrom(
+        this.userApi.submitVarkOnboarding(this.sessionStore.userId()!, payload),
+      );
+
       // Guardamos en el Store para cerrar permanentemente el Modal y actualizar el Dashboard
       const mappedVark = backendToAxiomVark(response.vark_dominant);
       this.sessionStore.setDominantVark(mappedVark);
-      
     } catch {
-      this.errorMessage.set('Ocurrió un error guardando tu perfil. Por favor, intenta de nuevo.');
+      this.errorMessage.set(
+        'Ocurrió un error guardando tu perfil. Por favor, intenta de nuevo.',
+      );
     } finally {
       this.isSubmitting.set(false);
     }

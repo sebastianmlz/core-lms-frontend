@@ -2,7 +2,10 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Button } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
-import { SessionStore, SessionStoreType } from '../../entities/session/model/session.store';
+import {
+  SessionStore,
+  SessionStoreType,
+} from '../../entities/session/model/session.store';
 import { UserRole } from '../../entities/session/model/session.types';
 
 @Component({

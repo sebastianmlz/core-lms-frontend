@@ -25,17 +25,17 @@ export const appConfig: ApplicationConfig = {
         apiErrorInterceptor,
       ]),
     ),
-    providePrimeNG({ 
-        theme: { 
-          preset: Aura,
-          options: {
-            darkModeSelector: 'none',
-            cssLayer: {
-                name: 'primeng',
-                order: 'tailwind-base, primeng, tailwind-utilities'
-            }
-          }
-        }
-    })
-  ]
+    providePrimeNG({
+      theme: {
+        preset: Aura,
+        options: {
+          darkModeSelector: 'none',
+          cssLayer: {
+            name: 'primeng',
+            order: 'tailwind-base, primeng, tailwind-utilities',
+          },
+        },
+      },
+    }),
+  ],
 };

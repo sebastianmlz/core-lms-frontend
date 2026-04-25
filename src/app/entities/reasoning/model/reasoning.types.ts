@@ -1,4 +1,7 @@
-import { AxiomVarkProfile, BackendVarkProfile } from '../../../shared/lib/vark/vark.utils';
+import {
+  AxiomVarkProfile,
+  BackendVarkProfile,
+} from '../../../shared/lib/vark/vark.utils';
 
 export interface AdaptivePlanInput {
   studentId: string;

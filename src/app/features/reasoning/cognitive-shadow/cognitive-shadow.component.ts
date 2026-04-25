@@ -23,7 +23,9 @@ export class CognitiveShadowComponent {
     this._graph = value;
     this._treeNodes = this.buildTree(value);
   }
-  get graph(): CognitiveGraphResponse | null { return this._graph; }
+  get graph(): CognitiveGraphResponse | null {
+    return this._graph;
+  }
 
   @Input() isLoading = false;
 

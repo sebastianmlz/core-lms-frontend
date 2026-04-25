@@ -1,8 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Button } from 'primeng/button';
-import { CertificateStore, CertificateStoreType } from '../../../entities/certificate/model/certificate.store';
+import {
+  CertificateStore,
+  CertificateStoreType,
+} from '../../../entities/certificate/model/certificate.store';
 
 @Component({
   selector: 'app-certificate-viewer-page',

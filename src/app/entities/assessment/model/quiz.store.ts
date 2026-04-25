@@ -30,16 +30,29 @@ export const QuizStore = signalStore(
         const quizzes = await firstValueFrom(quizApi.getQuizzes());
         patchState(store, { quizzes, isLoadingQuizzes: false });
       } catch {
-        patchState(store, { isLoadingQuizzes: false, error: 'Failed to load quizzes' });
+        patchState(store, {
+          isLoadingQuizzes: false,
+          error: 'Failed to load quizzes',
+        });
       }
     },
     async loadQuizDetail(quizId: number): Promise<void> {
-      patchState(store, { isLoadingDetail: true, error: null, selectedQuizDetail: null });
+      patchState(store, {
+        isLoadingDetail: true,
+        error: null,
+        selectedQuizDetail: null,
+      });
       try {
         const detail = await firstValueFrom(quizApi.getQuizDetail(quizId));
-        patchState(store, { selectedQuizDetail: detail, isLoadingDetail: false });
+        patchState(store, {
+          selectedQuizDetail: detail,
+          isLoadingDetail: false,
+        });
       } catch {
-        patchState(store, { isLoadingDetail: false, error: 'Failed to load quiz details' });
+        patchState(store, {
+          isLoadingDetail: false,
+          error: 'Failed to load quiz details',
+        });
       }
     },
     clearQuizDetail(): void {

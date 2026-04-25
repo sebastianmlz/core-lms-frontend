@@ -1,5 +1,13 @@
-import { HttpClient, HttpContext, provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+import {
+  HttpClient,
+  HttpContext,
+  provideHttpClient,
+  withInterceptors,
+} from '@angular/common/http';
+import {
+  provideHttpClientTesting,
+  HttpTestingController,
+} from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../../environments/environment';
 import { API_TARGET } from '../http-context.tokens';
@@ -32,7 +40,9 @@ describe('baseUrlInterceptor', () => {
       })
       .subscribe();
 
-    const req = httpController.expectOne(`${environment.djangoApiUrl}/api/v1/health/`);
+    const req = httpController.expectOne(
+      `${environment.djangoApiUrl}/api/v1/health/`,
+    );
     expect(req.request.headers.has('X-Request-ID')).toBe(true);
     req.flush({ status: 'ok' });
   });

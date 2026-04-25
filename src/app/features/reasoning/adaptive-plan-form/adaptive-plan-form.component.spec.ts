@@ -1,14 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
-import {
-  CourseStore,
-} from '../../../entities/course/model/course.store';
-import {
-  ReasoningStore,
-} from '../../../entities/reasoning/model/reasoning.store';
-import {
-  SessionStore,
-} from '../../../entities/session/model/session.store';
+import { CourseStore } from '../../../entities/course/model/course.store';
+import { ReasoningStore } from '../../../entities/reasoning/model/reasoning.store';
+import { SessionStore } from '../../../entities/session/model/session.store';
 import { QuizStore } from '../../../entities/assessment/model/quiz.store';
 import { AdaptivePlanFormComponent } from './adaptive-plan-form.component';
 
@@ -146,6 +140,8 @@ describe('AdaptivePlanFormComponent', () => {
     await component.submit();
 
     expect(reasoningStoreMock.runDiagnosticFromAttempt).not.toHaveBeenCalled();
-    expect(component.parseError).toContain('Debe seleccionar al menos una respuesta válida');
+    expect(component.parseError).toContain(
+      'Debe seleccionar al menos una respuesta válida',
+    );
   });
 });

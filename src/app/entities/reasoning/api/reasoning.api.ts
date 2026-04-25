@@ -24,7 +24,9 @@ interface AdaptivePlanRequest {
 export class ReasoningApiService {
   private readonly axiomApi = inject(AxiomApiClient);
 
-  generateAdaptivePlan(input: AdaptivePlanInput): Observable<AdaptivePlanResponse> {
+  generateAdaptivePlan(
+    input: AdaptivePlanInput,
+  ): Observable<AdaptivePlanResponse> {
     const payload: AdaptivePlanRequest = {
       student_id: input.studentId,
       course_id: input.courseId,
@@ -43,7 +45,11 @@ export class ReasoningApiService {
     );
   }
 
-  getCognitiveGraph(studentId: string, topics: string[], targetTopic?: string): Observable<CognitiveGraphResponse> {
+  getCognitiveGraph(
+    studentId: string,
+    topics: string[],
+    targetTopic?: string,
+  ): Observable<CognitiveGraphResponse> {
     return this.axiomApi.get<CognitiveGraphResponse>(
       `/api/v1/tutor/student/${studentId}/cognitive-graph`,
       {

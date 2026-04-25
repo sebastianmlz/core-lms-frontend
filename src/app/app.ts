@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { SessionStore, SessionStoreType } from './entities/session/model/session.store';
+import {
+  SessionStore,
+  SessionStoreType,
+} from './entities/session/model/session.store';
 
 @Component({
   selector: 'app-root',

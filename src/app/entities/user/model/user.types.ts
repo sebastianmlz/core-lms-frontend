@@ -1,4 +1,8 @@
-export type BackendVarkCategory = 'visual' | 'aural' | 'read_write' | 'kinesthetic';
+export type BackendVarkCategory =
+  | 'visual'
+  | 'aural'
+  | 'read_write'
+  | 'kinesthetic';
 
 export interface VarkAnswer {
   category: BackendVarkCategory;

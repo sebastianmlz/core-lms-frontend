@@ -18,10 +18,15 @@ export class AttemptApiService {
       answers: input.answers,
     };
 
-    return this.djangoApi.post<AttemptResultResponse, AttemptSubmitRequest>('/api/v1/attempts/', payload);
+    return this.djangoApi.post<AttemptResultResponse, AttemptSubmitRequest>(
+      '/api/v1/attempts/',
+      payload,
+    );
   }
 
   getAttempt(attemptId: number): Observable<AttemptResultResponse> {
-    return this.djangoApi.get<AttemptResultResponse>(`/api/v1/attempts/${attemptId}/`);
+    return this.djangoApi.get<AttemptResultResponse>(
+      `/api/v1/attempts/${attemptId}/`,
+    );
   }
 }

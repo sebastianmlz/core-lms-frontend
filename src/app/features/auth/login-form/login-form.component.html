@@ -1,6 +1,8 @@
 <form class="space-y-6" [formGroup]="form" (ngSubmit)="submit()">
   <div class="space-y-2">
-    <label class="text-sm font-semibold text-slate-700" for="username">Usuario</label>
+    <label class="text-sm font-semibold text-slate-700" for="username"
+      >Usuario</label
+    >
     <input
       id="username"
       class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
@@ -11,7 +13,9 @@
   </div>
 
   <div class="space-y-2">
-    <label class="text-sm font-semibold text-slate-700" for="password">Contrasena</label>
+    <label class="text-sm font-semibold text-slate-700" for="password"
+      >Contrasena</label
+    >
     <input
       id="password"
       class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
@@ -21,9 +25,10 @@
     />
   </div>
 
-
   @if (sessionStore.error(); as errorMessage) {
-    <p class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+    <p
+      class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+    >
       {{ errorMessage }}
     </p>
   }

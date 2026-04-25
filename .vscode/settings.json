@@ -1,0 +1,8 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    // This tells VS Code to also run ESLint auto-fixes on save
+    "source.fixAll.eslint": "explicit"
+  }
+}

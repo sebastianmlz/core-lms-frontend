@@ -4,7 +4,7 @@
       <h2 class="text-lg font-semibold text-slate-900">Catalogo de Cursos</h2>
       <p class="text-xs text-slate-500">Selecciona un curso para ver su estructura academica.</p>
     </div>
-    <p-button label="Recargar" size="small" severity="secondary" (onClick)="courseStore.loadCourses()" />
+    <p-button label="Recargar" size="small" severity="warn" (onClick)="courseStore.loadCourses()" />
   </header>
 
   @if (courseStore.isLoading()) {
@@ -20,12 +20,37 @@
             <h3 class="mt-1 text-base font-semibold">{{ course.name }}</h3>
             <p class="mt-2 line-clamp-3 text-sm text-slate-600">{{ course.description || 'Sin descripcion.' }}</p>
           </div>
-          <p-button
-            [label]="courseStore.selectedCourseId() === course.id ? 'Curso activo' : 'Ver estructura'"
-            [severity]="courseStore.selectedCourseId() === course.id ? 'secondary' : undefined"
-            size="small"
-            (onClick)="loadDetail(course.id)"
-          />
+          <div class="mt-4 flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+              @if (courseStore.selectedCourseId() === course.id) {
+                <p-button
+                  label="Seleccionado"
+                  icon="pi pi-check-circle"
+                  severity="success"
+                  [text]="true"
+                  size="small"
+                  class="flex-1"
+                  (onClick)="loadDetail(course.id)"
+                />
+              } @else {
+                <p-button
+                  label="Estructura"
+                  icon="pi pi-sitemap"
+                  severity="info"
+                  size="small"
+                  class="flex-1 font-bold shadow-sm"
+                  (onClick)="loadDetail(course.id)"
+                />
+              }
+              <p-button
+                label="Ver curso"
+                icon="pi pi-arrow-right"
+                size="small"
+                class="flex-1"
+                (onClick)="navigateToCourse(course.id)"
+              />
+            </div>
+          </div>
         </article>
       }
     </div>
@@ -33,9 +58,26 @@
 
   @if (courseStore.selectedCourseDetail(); as detail) {
     <section class="space-y-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-      <div>
-        <h3 class="text-base font-semibold text-emerald-900">{{ detail.code }} - {{ detail.name }}</h3>
-        <p class="mt-1 text-sm text-emerald-800/90">{{ detail.description || 'Sin descripcion.' }}</p>
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h3 class="text-base font-semibold text-emerald-900">{{ detail.code }} - {{ detail.name }}</h3>
+          <p class="mt-1 text-sm text-emerald-800/90">{{ detail.description || 'Sin descripcion.' }}</p>
+        </div>
+        @if (!enableTutorAnalytics) {
+          <div class="flex flex-col items-end">
+             <p-button 
+               label="Generar Certificado" 
+               icon="pi pi-verified"
+               severity="success" 
+               size="small"
+               [loading]="certificateStore.isGenerating()"
+               (onClick)="generateCertificate(detail.id)"
+             />
+             @if (certificateStore.error(); as certError) {
+               <span class="text-xs text-red-600 mt-2 font-bold max-w-xs text-right">{{ certError }}</span>
+             }
+          </div>
+        }
       </div>
 
       <div class="grid gap-2 md:grid-cols-2">
@@ -45,6 +87,35 @@
             <p class="mt-1 text-xs text-slate-600">Lecciones: {{ module.lessons?.length ?? 0 }}</p>
           </article>
         }
+      </div>
+
+      <!-- Quizzes Section -->
+      <div class="mt-6 border-t border-emerald-100 pt-4">
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="text-sm font-bold uppercase tracking-wider text-emerald-800">Evaluaciones (Quizzes)</h4>
+        </div>
+        
+        <div class="grid gap-2 sm:grid-cols-2">
+          @for (quiz of courseStore.selectedCourseQuizzes(); track quiz.id) {
+            <article class="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+              <div>
+                <p class="text-sm font-semibold text-slate-900">{{ quiz.title }}</p>
+                <p class="text-xs text-slate-500">{{ quiz.question_count }} preguntas · {{ quiz.time_limit_minutes }} min</p>
+              </div>
+              <div class="flex gap-1">
+                @if (enableTutorAnalytics) {
+                  <p-button icon="pi pi-pencil" size="small" [rounded]="true" [text]="true" severity="secondary" title="Editar Quiz" />
+                } @else {
+                  <p-button label="Comenzar" size="small" [outlined]="true" icon="pi pi-play" (onClick)="navigateToCourse(detail.id)" />
+                }
+              </div>
+            </article>
+          } @empty {
+            <div class="col-span-full rounded-lg bg-emerald-100/50 p-4 text-center">
+              <p class="text-xs text-emerald-800 italic">No hay evaluaciones configuradas para este curso.</p>
+            </div>
+          }
+        </div>
       </div>
     </section>
   }

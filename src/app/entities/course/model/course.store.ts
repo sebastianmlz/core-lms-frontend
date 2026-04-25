@@ -2,15 +2,18 @@ import { computed, inject } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { firstValueFrom } from 'rxjs';
 import { CourseApiService } from '../api/course.api';
-import { CourseState } from './course.types';
+import { CourseDashboardSummary, CourseDetail, CourseListItem, CourseState } from './course.types';
+import { QuizApiService } from '../../assessment/api/quiz.api';
 
 const initialState: CourseState = {
   courses: [],
   selectedCourseId: null,
   selectedCourseDetail: null,
   selectedCourseDashboard: null,
+  selectedCourseQuizzes: [],
   isLoading: false,
   isLoadingDashboard: false,
+  isLoadingQuizzes: false,
   error: null,
   dashboardError: null,
 };
@@ -84,6 +87,22 @@ export const CourseStore = signalStore(
           selectedCourseDashboard: null,
           isLoadingDashboard: false,
           dashboardError: 'No se pudieron cargar las metricas del curso.',
+        });
+      }
+    },
+    async loadCourseQuizzes(courseId: number): Promise<void> {
+      patchState(store, { isLoadingQuizzes: true });
+      const quizApi = inject(QuizApiService);
+      try {
+        const quizzes = await firstValueFrom(quizApi.getQuizzes(courseId));
+        patchState(store, {
+          selectedCourseQuizzes: quizzes,
+          isLoadingQuizzes: false,
+        });
+      } catch {
+        patchState(store, {
+          selectedCourseQuizzes: [],
+          isLoadingQuizzes: false,
         });
       }
     },

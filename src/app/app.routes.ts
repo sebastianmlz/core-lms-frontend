@@ -62,6 +62,13 @@ export const routes: Routes = [
 		],
 	},
 	{
+		path: 'certificate/:hash',
+		loadComponent: () =>
+			import('./pages/public/certificate-viewer-page/certificate-viewer-page.component').then(
+				(m) => m.CertificateViewerPageComponent,
+			),
+	},
+	{
 		path: '**',
 		loadComponent: () =>
 			import('./pages/not-found/not-found-page.component').then(

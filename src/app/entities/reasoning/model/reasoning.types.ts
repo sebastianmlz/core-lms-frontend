@@ -50,7 +50,7 @@ export type DiagnosticExecutionStatus =
 export interface CognitiveGraphNode {
   id: string;
   label: string;
-  status: 'failed' | 'learning' | 'mastered';
+  cognitive_state: 'failed' | 'learning' | 'mastered';
 }
 
 export interface CognitiveGraphEdge {
@@ -60,7 +60,6 @@ export interface CognitiveGraphEdge {
 }
 
 export interface CognitiveGraphResponse {
-  student_id: string;
   nodes: CognitiveGraphNode[];
   edges: CognitiveGraphEdge[];
 }

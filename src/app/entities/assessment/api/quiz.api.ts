@@ -8,13 +8,19 @@ import { PaginatedResponse, QuizDetailResponse, QuizListResponse } from '../mode
 export class QuizApiService {
   private readonly djangoApi = inject(DjangoApiClient);
 
-  getQuizzes(): Observable<QuizListResponse[]> {
-    return this.djangoApi.get<PaginatedResponse<QuizListResponse[]>>('/api/v1/quizzes/').pipe(
+  getQuizzes(courseId?: number): Observable<QuizListResponse[]> {
+    const params: any = {};
+    if (courseId) params.course = courseId;
+    return this.djangoApi.get<PaginatedResponse<QuizListResponse[]>>('/api/v1/quizzes/', { params }).pipe(
       map((response) => response.results)
     );
   }
 
   getQuizDetail(quizId: number): Observable<QuizDetailResponse> {
     return this.djangoApi.get<QuizDetailResponse>(`/api/v1/quizzes/${quizId}/`);
+  }
+
+  createQuiz(payload: any): Observable<QuizDetailResponse> {
+    return this.djangoApi.post<QuizDetailResponse, any>('/api/v1/quizzes/', payload);
   }
 }

@@ -69,6 +69,8 @@ export interface CourseDashboardSummary {
   proctoring_alerts: Record<string, number>;
   vark_distribution: Record<string, number>;
   top_failed_concepts: FailedConceptItem[];
+  available_topics: FailedConceptItem[];
+  students: { id: number; username: string }[];
 }
 
 export interface CourseState {
@@ -76,8 +78,10 @@ export interface CourseState {
   selectedCourseId: number | null;
   selectedCourseDetail: CourseDetail | null;
   selectedCourseDashboard: CourseDashboardSummary | null;
+  selectedCourseQuizzes: any[]; // Using any[] for now to avoid circular import if needed, but I'll use the type if I can.
   isLoading: boolean;
   isLoadingDashboard: boolean;
+  isLoadingQuizzes: boolean;
   error: string | null;
   dashboardError: string | null;
 }

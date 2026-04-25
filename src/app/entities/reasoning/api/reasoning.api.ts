@@ -43,12 +43,13 @@ export class ReasoningApiService {
     );
   }
 
-  getCognitiveGraph(studentId: string, topics: string[]): Observable<CognitiveGraphResponse> {
+  getCognitiveGraph(studentId: string, topics: string[], targetTopic?: string): Observable<CognitiveGraphResponse> {
     return this.axiomApi.get<CognitiveGraphResponse>(
       `/api/v1/tutor/student/${studentId}/cognitive-graph`,
       {
         params: {
           topics: topics.join(','),
+          target_topic: targetTopic,
         },
       },
     );

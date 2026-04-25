@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Button } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
 import { SessionStore, SessionStoreType } from '../../entities/session/model/session.store';
 import { UserRole } from '../../entities/session/model/session.types';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, Button],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, Button, ToastModule],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

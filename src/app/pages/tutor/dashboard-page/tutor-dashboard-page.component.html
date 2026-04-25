@@ -1,67 +1,242 @@
-<section class="space-y-6">
-  <header class="tutor-hero rounded-2xl p-6 text-white shadow-lg">
-    <p class="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-200">Tutor Workspace</p>
-    <h2 class="mt-2 text-2xl font-bold">Analitica y Sombra Cognitiva</h2>
-    <p class="mt-2 max-w-3xl text-sm text-slate-200">
-      Consulta estructura academica, monitorea conceptos fallidos y visualiza dependencias para intervencion temprana.
-    </p>
-  </header>
+<header class="mb-8 flex flex-wrap items-center justify-between gap-4">
+  <div class="flex items-center gap-4">
+    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-600 text-white shadow-lg shadow-teal-200">
+      <i class="pi pi-briefcase text-xl"></i>
+    </div>
+    <div>
+      <h1 class="text-3xl font-black tracking-tight text-slate-900">Dashboard Docente</h1>
+      <p class="text-sm font-medium text-slate-500">Panel de control AxiomEngine para monitoreo cognitivo</p>
+    </div>
+  </div>
+  <div class="flex items-center gap-3">
+    <p-button label="Nueva Evaluacion" icon="pi pi-plus" (onClick)="showCreateQuiz = true" />
+    <p-button label="Recargar Todo" icon="pi pi-refresh" severity="secondary" [text]="true" (onClick)="courseStore.loadCourses()" />
+  </div>
+</header>
 
-  <div class="grid gap-6 xl:grid-cols-[1fr_1.3fr]">
-    <section class="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 class="text-lg font-semibold text-slate-900">Solicitar grafo cognitivo</h3>
+<div class="grid gap-6 xl:grid-cols-[1.2fr_1fr]">
+  <!-- Left Column: Insights & Graph Control -->
+  <div class="space-y-6">
+    <section class="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold text-slate-900">Solicitar Sombra Cognitiva</h3>
+        <i class="pi pi-bolt text-teal-500"></i>
+      </div>
 
-      <form class="space-y-3" [formGroup]="graphForm" (ngSubmit)="loadGraph()">
-        <label class="block space-y-1 text-sm font-medium text-slate-700">
-          <span>Student ID</span>
-          <input
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-cyan-500 focus:outline-none"
-            formControlName="studentId"
-            placeholder="student-42"
-            type="text"
-          />
-        </label>
-
-        <label class="block space-y-1 text-sm font-medium text-slate-700">
-          <div class="flex items-center justify-between gap-2">
-            <span>Topics fallidos</span>
-            <button
-              class="rounded-md border border-cyan-200 px-2 py-1 text-xs font-medium text-cyan-700 transition hover:bg-cyan-50 disabled:cursor-not-allowed disabled:opacity-50"
-              [disabled]="!courseStore.selectedCourseDashboard()"
-              type="button"
-              (click)="useSuggestedTopics()"
-            >
-              Usar top failed
-            </button>
+      @if (!courseStore.selectedCourseId()) {
+        <div class="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center">
+          <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+            <i class="pi pi-info-circle text-xl"></i>
           </div>
-          <input
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-cyan-500 focus:outline-none"
-            formControlName="topics"
-            placeholder="Polymorphism, Recursion"
-            type="text"
+          <p class="text-sm font-medium text-slate-600">Selecciona un curso del catálogo abajo para cargar sus datos.</p>
+        </div>
+      } @else {
+        <form class="space-y-4" [formGroup]="graphForm" (ngSubmit)="loadGraph()">
+          <div class="field">
+            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">Estudiante a monitorear</label>
+            <p-select
+              [options]="courseStore.selectedCourseDashboard()?.students || []"
+              formControlName="studentId"
+              optionLabel="username"
+              optionValue="id"
+              placeholder="Seleccionar estudiante..."
+              styleClass="w-full"
+              [loading]="courseStore.isLoadingDashboard()"
+            />
+          </div>
+   
+          <div class="field">
+            <div class="mb-1.5 flex items-center justify-between">
+              <label class="text-xs font-bold uppercase tracking-wider text-slate-500">Temas a analizar</label>
+              <button
+                class="text-xs font-bold text-teal-600 hover:text-teal-700 disabled:opacity-50"
+                [disabled]="!courseStore.selectedCourseDashboard()"
+                type="button"
+                (click)="useSuggestedTopics()"
+              >
+                Usar sugerencias IA
+              </button>
+            </div>
+            <p-multiselect
+              [options]="courseStore.selectedCourseDashboard()?.available_topics || []"
+              formControlName="topics"
+              optionLabel="concept_id"
+              optionValue="concept_id"
+              placeholder="Seleccionar temas..."
+              display="chip"
+              styleClass="w-full"
+              [loading]="courseStore.isLoadingDashboard()"
+            />
+          </div>
+
+          @if (graphForm.controls.topics.value.length > 0) {
+            <div class="field animate-in fade-in slide-in-from-top-2 duration-300">
+              <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">Foco Visual (Opcional)</label>
+              <p-select
+                [options]="graphForm.controls.topics.value"
+                formControlName="targetTopic"
+                placeholder="Enfocar en un tema..."
+                styleClass="w-full"
+                [showClear]="true"
+              />
+              <p class="mt-1.5 text-[10px] italic text-slate-400">El grafo se centrará únicamente en el entorno de este tema.</p>
+            </div>
+          }
+
+          <p-button
+            [loading]="reasoningStore.isLoadingGraph()"
+            [disabled]="reasoningStore.isLoadingGraph() || graphForm.invalid"
+            label="Generar Grafo"
+            icon="pi pi-search"
+            type="submit"
+            class="w-full"
+            styleClass="w-full"
           />
-        </label>
-
-        <p-button
-          [loading]="reasoningStore.isLoadingGraph()"
-          [disabled]="reasoningStore.isLoadingGraph()"
-          label="Cargar sombra"
-          type="submit"
-        />
-      </form>
-
-      @if (reasoningStore.error(); as errorMessage) {
-        <p class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {{ errorMessage }}
-        </p>
+        </form>
       }
 
-      <app-course-overview [enableTutorAnalytics]="true" />
+      @if (reasoningStore.error(); as errorMessage) {
+        <div class="mt-4 rounded-xl border border-red-100 bg-red-50 p-3 text-xs font-medium text-red-700">
+          <i class="pi pi-exclamation-circle mr-1"></i> {{ errorMessage }}
+        </div>
+      }
     </section>
 
+    <!-- Cognitive Shadow Visualization -->
     <app-cognitive-shadow
-      [edges]="reasoningStore.cognitiveGraph()?.edges ?? []"
-      [nodes]="reasoningStore.cognitiveGraph()?.nodes ?? []"
+      [graph]="reasoningStore.cognitiveGraph()"
+      [isLoading]="reasoningStore.isLoadingGraph()"
     />
   </div>
-</section>
+
+  <!-- Right Column: Course Catalog -->
+  <div class="space-y-6">
+    <app-course-overview [enableTutorAnalytics]="true" [inline]="true" />
+  </div>
+</div>
+
+<!-- Create Quiz Dialog -->
+<p-dialog 
+  [(visible)]="showCreateQuiz" 
+  header="Configurar Nueva Evaluacion" 
+  [modal]="true" 
+  [style]="{width: '600px', maxWidth: '95vw'}"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="quiz-dialog"
+>
+  <form [formGroup]="quizForm" class="space-y-4 pt-2">
+    <div class="field">
+      <label for="title" class="block text-sm font-medium text-slate-700">Título del Quiz</label>
+      <input
+        id="title"
+        class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+        formControlName="title"
+        placeholder="Ej: Quiz de Recursividad"
+        type="text"
+      />
+    </div>
+ 
+    <div class="field">
+      <label for="description" class="block text-sm font-medium text-slate-700">Descripción / Instrucciones</label>
+      <textarea
+        id="description"
+        class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+        formControlName="description"
+        rows="2"
+        placeholder="Instrucciones para el estudiante..."
+      ></textarea>
+    </div>
+ 
+    <div class="field">
+      <label for="timeLimit" class="block text-sm font-medium text-slate-700">Tiempo Límite (minutos)</label>
+      <p-inputNumber id="timeLimit" formControlName="timeLimit" [showButtons]="true" [min]="1" styleClass="w-full" />
+    </div>
+
+    <!-- Questions Builder -->
+    <div class="mt-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+        <h4 class="text-sm font-bold uppercase tracking-wider text-slate-800">Preguntas</h4>
+        <p-button label="Añadir Pregunta" icon="pi pi-plus" size="small" [text]="true" (onClick)="addQuestion()" />
+      </div>
+
+      <div formArrayName="questions" class="space-y-6">
+        @for (question of questions.controls; track $index; let qIdx = $index) {
+          <div [formGroupName]="qIdx" class="rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm relative">
+            <button 
+              type="button" 
+              class="absolute top-2 right-2 text-slate-400 hover:text-red-500 transition-colors"
+              (click)="removeQuestion(qIdx)"
+            >
+              <i class="pi pi-trash"></i>
+            </button>
+
+            <div class="grid gap-4">
+              <div class="field">
+                <label class="block text-xs font-bold text-slate-500 uppercase">Texto de la Pregunta</label>
+                <input
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-200 outline-none"
+                  formControlName="text"
+                  placeholder="Ej: ¿Qué es una función pura?"
+                />
+              </div>
+
+              <div class="field">
+                <label class="block text-xs font-bold text-slate-500 uppercase">Concepto Relacionado</label>
+                <p-select
+                  [options]="courseStore.selectedCourseDashboard()?.available_topics || []"
+                  formControlName="concept_id"
+                  optionLabel="concept_id"
+                  optionValue="concept_id"
+                  placeholder="Seleccionar concepto"
+                  styleClass="w-full text-sm"
+                />
+              </div>
+
+              <!-- Choices -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-500 uppercase">Opciones</span>
+                  <p-button label="Añadir Opción" icon="pi pi-plus" size="small" [text]="true" [style]="{padding: '2px'}" (onClick)="addChoice(qIdx)" />
+                </div>
+
+                <div formArrayName="choices" class="space-y-2">
+                  @for (choice of getChoices(qIdx); track $index; let cIdx = $index) {
+                    <div [formGroupName]="cIdx" class="flex items-center gap-2">
+                      <input 
+                        type="radio" 
+                        [name]="'correct-' + qIdx" 
+                        [checked]="choice.get('is_correct')?.value" 
+                        (change)="setCorrectChoice(qIdx, cIdx)"
+                        class="h-4 w-4 text-teal-600 focus:ring-teal-500"
+                      />
+                      <input
+                        class="flex-1 rounded-lg border border-slate-200 px-3 py-1 text-sm focus:border-teal-500 outline-none"
+                        formControlName="text"
+                        placeholder="Opción..."
+                      />
+                      <button 
+                        type="button" 
+                        class="text-slate-300 hover:text-red-400 transition-colors"
+                        (click)="removeChoice(qIdx, cIdx)"
+                      >
+                        <i class="pi pi-times-circle"></i>
+                      </button>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        } @empty {
+          <p class="text-center text-sm text-slate-400 italic py-4">No has añadido preguntas aún. Haz clic en "Añadir Pregunta".</p>
+        }
+      </div>
+    </div>
+
+    <footer class="flex justify-end gap-2 pt-6 border-t border-slate-100 mt-4">
+      <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="showCreateQuiz = false" />
+      <p-button label="Guardar Evaluacion" icon="pi pi-save" (onClick)="submitQuiz()" [disabled]="quizForm.invalid || questions.length === 0" />
+    </footer>
+  </form>
+</p-dialog>

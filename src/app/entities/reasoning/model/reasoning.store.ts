@@ -196,11 +196,11 @@ export const ReasoningStore = signalStore(
         error: 'No se recibio un plan adaptativo valido para este intento.',
       });
     },
-    async loadCognitiveGraph(studentId: string, topics: string[]): Promise<void> {
+    async loadCognitiveGraph(studentId: string, topics: string[], targetTopic?: string): Promise<void> {
       patchState(store, { isLoadingGraph: true, error: null });
 
       try {
-        const graph = await firstValueFrom(reasoningApi.getCognitiveGraph(studentId, topics));
+        const graph = await firstValueFrom(reasoningApi.getCognitiveGraph(studentId, topics, targetTopic));
         patchState(store, {
           cognitiveGraph: graph,
           isLoadingGraph: false,

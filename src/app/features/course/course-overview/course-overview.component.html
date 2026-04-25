@@ -104,7 +104,15 @@
               </div>
               <div class="flex gap-1">
                 @if (enableTutorAnalytics) {
-                  <p-button icon="pi pi-pencil" size="small" [rounded]="true" [text]="true" severity="secondary" title="Editar Quiz" />
+                  <p-button 
+                    icon="pi pi-trash" 
+                    size="small" 
+                    [rounded]="true" 
+                    [text]="true" 
+                    severity="danger" 
+                    title="Eliminar Quiz" 
+                    (onClick)="deleteQuiz(quiz.id)"
+                  />
                 } @else {
                   <p-button label="Comenzar" size="small" [outlined]="true" icon="pi pi-play" (onClick)="navigateToCourse(detail.id)" />
                 }

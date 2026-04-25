@@ -26,7 +26,7 @@ export const CourseStore = signalStore(
       store.courses().find((course) => course.id === store.selectedCourseId()) ?? null,
     ),
   })),
-  withMethods((store, courseApi = inject(CourseApiService)) => ({
+  withMethods((store, courseApi = inject(CourseApiService), quizApi = inject(QuizApiService)) => ({
     async loadCourses(): Promise<void> {
       patchState(store, { isLoading: true, error: null });
 
@@ -92,7 +92,6 @@ export const CourseStore = signalStore(
     },
     async loadCourseQuizzes(courseId: number): Promise<void> {
       patchState(store, { isLoadingQuizzes: true });
-      const quizApi = inject(QuizApiService);
       try {
         const quizzes = await firstValueFrom(quizApi.getQuizzes(courseId));
         patchState(store, {

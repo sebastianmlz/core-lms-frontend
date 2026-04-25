@@ -23,4 +23,8 @@ export class QuizApiService {
   createQuiz(payload: any): Observable<QuizDetailResponse> {
     return this.djangoApi.post<QuizDetailResponse, any>('/api/v1/quizzes/', payload);
   }
+
+  deleteQuiz(quizId: number): Observable<void> {
+    return this.djangoApi.delete<void>(`/api/v1/quizzes/${quizId}/`);
+  }
 }

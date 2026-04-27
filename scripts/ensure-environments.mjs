@@ -17,6 +17,31 @@ function normalizeTemplate(template, production) {
   return template.replace(/production:\s*(true|false)/, `production: ${String(production)}`);
 }
 
+function escapeSingleQuotedValue(value) {
+  return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
+function applyApiUrlOverrides(template) {
+  const envOverrides = [
+    { envName: 'DJANGO_API_URL', property: 'djangoApiUrl' },
+    { envName: 'AXIOM_API_URL', property: 'axiomApiUrl' },
+  ];
+
+  let output = template;
+
+  for (const { envName, property } of envOverrides) {
+    const value = process.env[envName]?.trim();
+    if (!value) {
+      continue;
+    }
+
+    const propertyPattern = new RegExp(`(${property}\\s*:\\s*)['"][^'"]*['"]`);
+    output = output.replace(propertyPattern, `$1'${escapeSingleQuotedValue(value)}'`);
+  }
+
+  return output;
+}
+
 async function exists(filePath) {
   try {
     await access(filePath, constants.F_OK);
@@ -35,6 +60,7 @@ async function ensureEnvironments() {
   }
 
   const template = await readFile(templatePath, 'utf-8');
+  const templateWithOverrides = applyApiUrlOverrides(template);
 
   for (const target of targets) {
     const targetPath = path.join(environmentsDir, target.filename);
@@ -42,7 +68,7 @@ async function ensureEnvironments() {
       continue;
     }
 
-    const content = normalizeTemplate(template, target.production);
+    const content = normalizeTemplate(templateWithOverrides, target.production);
     await writeFile(targetPath, content, 'utf-8');
     console.log(`Created ${path.relative(projectRoot, targetPath)}`);
   }

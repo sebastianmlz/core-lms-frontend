@@ -1,59 +1,115 @@
 # CoreLmsFrontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.8.
+Angular frontend for Core LMS, generated with Angular CLI 21.
 
-## Development server
+## Local development
 
-To start a local development server, run:
+Required Node.js version for Angular CLI 21 in this project:
+- `>= 20.19.0` or `>= 22.12.0`
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Install dependencies:
 
 ```bash
-ng generate component component-name
+npm ci
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Run the development server:
 
 ```bash
-ng generate --help
+npm run start
 ```
 
-## Building
+The app is served at `http://localhost:4200/` by default.
 
-To build the project run:
+## Build and test
+
+Production build:
 
 ```bash
-ng build
+npm run build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+Unit tests:
 
 ```bash
-ng test
+npm run test
 ```
 
-## Running end-to-end tests
+## Railway deployment (Docker + Caddy)
 
-For end-to-end (e2e) testing, run:
+This repository deploys to Railway through an explicit Dockerfile pipeline (no Railpack). Static files are served by Caddy with SPA fallback routing.
+
+### Why this setup
+
+- deterministic build pipeline in source control
+- transparent build logs tied to Dockerfile stages
+- Angular deep-link support (`/student/...`) via server-side SPA fallback
+
+### Build-time environment model
+
+Angular environment values are compile-time constants for a static SPA. This project injects API URLs at image build time using Docker build args:
+
+- `DJANGO_API_URL`
+- `AXIOM_API_URL`
+
+How it works:
+- `scripts/ensure-environments.mjs` still only creates `src/environments/environment.ts` and `src/environments/environment.development.ts` when missing.
+- `.dockerignore` excludes those generated files from the Docker context.
+- During Docker build, prebuild generation runs inside the container, so the files are generated from `src/environments/environment.example.ts` and can consume `DJANGO_API_URL` and `AXIOM_API_URL` when provided.
+- If build args are not provided, template defaults are used.
+
+### Local Docker validation
+
+Build image:
 
 ```bash
-ng e2e
+docker build \
+	--build-arg DJANGO_API_URL=https://django.example.com \
+	--build-arg AXIOM_API_URL=https://axiom.example.com \
+	-t core-lms-frontend:local .
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Run container:
 
-## Additional Resources
+```bash
+docker run --rm -p 8080:8080 -e PORT=8080 core-lms-frontend:local
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Check root route:
+
+```bash
+curl -i http://localhost:8080/
+```
+
+Check SPA fallback route:
+
+```bash
+curl -i http://localhost:8080/student/course/123
+```
+
+Check bundled API origins:
+
+```bash
+docker run --rm core-lms-frontend:local sh -lc "grep -R \"https://django.example.com\" -n /srv || true"
+docker run --rm core-lms-frontend:local sh -lc "grep -R \"https://axiom.example.com\" -n /srv || true"
+```
+
+## Railway configuration
+
+Railway is configured through `railway.toml`:
+- `builder = "DOCKERFILE"`
+- `dockerfilePath = "Dockerfile"`
+- deploy healthcheck on `/`
+
+In Railway service variables, define:
+- `DJANGO_API_URL`
+- `AXIOM_API_URL`
+
+Post-deploy checks in Railway:
+- build log shows Dockerfile build stages (not Railpack)
+- deploy healthcheck is healthy
+- deep links return the app (no static 404)
+
+## Reference
+
+Angular CLI docs: https://angular.dev/tools/cli

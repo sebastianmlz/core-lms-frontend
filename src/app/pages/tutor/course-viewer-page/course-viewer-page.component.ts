@@ -1,21 +1,45 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { Button } from 'primeng/button';
 import { Select } from 'primeng/select';
 import { Dialog } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ProgressBarModule } from 'primeng/progressbar';
-import { CourseStore, CourseStoreType } from '../../../entities/course/model/course.store';
+import {
+  CourseStore,
+  CourseStoreType,
+} from '../../../entities/course/model/course.store';
 import { QuizApiService } from '../../../entities/assessment/api/quiz.api';
 import { LessonItem } from '../../../entities/course/model/course.types';
 import { GradingPanelComponent } from '../../../features/tutor/grading-panel/grading-panel.component';
 
 @Component({
   selector: 'app-tutor-course-viewer-page',
-  imports: [CommonModule, ReactiveFormsModule, Button, Select, Dialog, InputNumberModule, ProgressBarModule, GradingPanelComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    Button,
+    Select,
+    Dialog,
+    InputNumberModule,
+    ProgressBarModule,
+    GradingPanelComponent,
+  ],
   templateUrl: './course-viewer-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -26,9 +50,15 @@ export class TutorCourseViewerPageComponent {
 
   readonly selectedLesson = signal<LessonItem | null>(null);
 
-  readonly courseName = computed(() => this.courseStore.selectedCourseDetail()?.name ?? 'Cargando curso...');
-  readonly courseModules = computed(() => this.courseStore.selectedCourseDetail()?.modules ?? []);
-  readonly dashboard = computed(() => this.courseStore.selectedCourseDashboard());
+  readonly courseName = computed(
+    () => this.courseStore.selectedCourseDetail()?.name ?? 'Cargando curso...',
+  );
+  readonly courseModules = computed(
+    () => this.courseStore.selectedCourseDetail()?.modules ?? [],
+  );
+  readonly dashboard = computed(() =>
+    this.courseStore.selectedCourseDashboard(),
+  );
 
   constructor() {
     this.route.paramMap.subscribe((params) => {
@@ -78,15 +108,20 @@ export class TutorCourseViewerPageComponent {
         timeLimit: quiz.time_limit_minutes,
       });
       this.questions.clear();
-      quiz.questions.forEach((q: any) => {
+
+      quiz.questions.forEach((q) => {
         const qForm = this.formBuilder.group({
           text: [q.text, [Validators.required]],
           concept_id: [q.concept_id, [Validators.required]],
           order: [q.order],
-          choices: this.formBuilder.array(q.choices.map((c: any) => this.formBuilder.group({
-            text: [c.text, [Validators.required]],
-            is_correct: [!!c.is_correct],
-          }))),
+          choices: this.formBuilder.array(
+            q.choices.map((c) =>
+              this.formBuilder.group({
+                text: [c.text, [Validators.required]],
+                is_correct: [!!c.is_correct],
+              }),
+            ),
+          ),
         });
         this.questions.push(qForm);
       });
@@ -101,7 +136,10 @@ export class TutorCourseViewerPageComponent {
       text: ['', [Validators.required]],
       concept_id: ['', [Validators.required]],
       order: [this.questions.length + 1],
-      choices: this.formBuilder.array([this.createChoice(), this.createChoice()]),
+      choices: this.formBuilder.array([
+        this.createChoice(),
+        this.createChoice(),
+      ]),
     });
     this.questions.push(questionForm);
   }
@@ -113,10 +151,14 @@ export class TutorCourseViewerPageComponent {
     });
   }
 
-  removeQuestion(idx: number) { this.questions.removeAt(idx); }
+  removeQuestion(idx: number) {
+    this.questions.removeAt(idx);
+  }
 
   addChoice(qIdx: number) {
-    (this.questions.at(qIdx).get('choices') as FormArray).push(this.createChoice());
+    (this.questions.at(qIdx).get('choices') as FormArray).push(
+      this.createChoice(),
+    );
   }
 
   removeChoice(qIdx: number, cIdx: number) {
@@ -125,11 +167,14 @@ export class TutorCourseViewerPageComponent {
 
   setCorrectChoice(qIdx: number, cIdx: number) {
     const choices = this.questions.at(qIdx).get('choices') as FormArray;
-    choices.controls.forEach((c, i) => c.get('is_correct')?.setValue(i === cIdx));
+    choices.controls.forEach((c, i) =>
+      c.get('is_correct')?.setValue(i === cIdx),
+    );
   }
 
   getChoices(qIdx: number) {
-    return (this.questions.at(qIdx).get('choices') as FormArray).controls as FormGroup[];
+    return (this.questions.at(qIdx).get('choices') as FormArray)
+      .controls as FormGroup[];
   }
 
   async saveQuiz(): Promise<void> {

@@ -1,3 +1,5 @@
+import { QuizListResponse } from '../../assessment/model/quiz.types';
+
 export interface ResourceItem {
   id: number;
   lesson: number;
@@ -78,7 +80,7 @@ export interface CourseState {
   selectedCourseId: number | null;
   selectedCourseDetail: CourseDetail | null;
   selectedCourseDashboard: CourseDashboardSummary | null;
-  selectedCourseQuizzes: any[]; // Using any[] for now to avoid circular import if needed, but I'll use the type if I can.
+  selectedCourseQuizzes: QuizListResponse[];
   isLoading: boolean;
   isLoadingDashboard: boolean;
   isLoadingQuizzes: boolean;

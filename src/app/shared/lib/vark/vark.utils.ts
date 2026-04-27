@@ -1,7 +1,17 @@
-export type BackendVarkProfile = 'visual' | 'aural' | 'read_write' | 'kinesthetic';
-export type AxiomVarkProfile = 'visual' | 'auditory' | 'read_write' | 'kinesthetic';
+export type BackendVarkProfile =
+  | 'visual'
+  | 'aural'
+  | 'read_write'
+  | 'kinesthetic';
+export type AxiomVarkProfile =
+  | 'visual'
+  | 'auditory'
+  | 'read_write'
+  | 'kinesthetic';
 
-export function backendToAxiomVark(profile: BackendVarkProfile | AxiomVarkProfile): AxiomVarkProfile {
+export function backendToAxiomVark(
+  profile: BackendVarkProfile | AxiomVarkProfile,
+): AxiomVarkProfile {
   if (profile === 'aural') {
     return 'auditory';
   }
@@ -9,7 +19,9 @@ export function backendToAxiomVark(profile: BackendVarkProfile | AxiomVarkProfil
   return profile;
 }
 
-export function axiomToBackendVark(profile: AxiomVarkProfile | BackendVarkProfile): BackendVarkProfile {
+export function axiomToBackendVark(
+  profile: AxiomVarkProfile | BackendVarkProfile,
+): BackendVarkProfile {
   if (profile === 'auditory') {
     return 'aural';
   }

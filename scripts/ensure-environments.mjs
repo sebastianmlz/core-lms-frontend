@@ -14,7 +14,10 @@ const targets = [
 ];
 
 function normalizeTemplate(template, production) {
-  return template.replace(/production:\s*(true|false)/, `production: ${String(production)}`);
+  return template.replace(
+    /production:\s*(true|false)/,
+    `production: ${String(production)}`,
+  );
 }
 
 function escapeSingleQuotedValue(value) {

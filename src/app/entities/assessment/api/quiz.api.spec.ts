@@ -1,13 +1,17 @@
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom, of } from 'rxjs';
-import { vi } from 'vitest';
+import { vi, Mock } from 'vitest';
 import { DjangoApiClient } from '../../../shared/api/django-api.client';
 import { QuizApiService } from './quiz.api';
-import { PaginatedResponse, QuizDetailResponse, QuizListResponse } from '../model/quiz.types';
+import {
+  PaginatedResponse,
+  QuizDetailResponse,
+  QuizListResponse,
+} from '../model/quiz.types';
 
 describe('QuizApiService', () => {
   let service: QuizApiService;
-  let djangoApiMock: any;
+  let djangoApiMock: { get: Mock };
 
   beforeEach(() => {
     djangoApiMock = {
@@ -29,20 +33,22 @@ describe('QuizApiService', () => {
   });
 
   it('should get quizzes', async () => {
-    const mockList: QuizListResponse[] = [{
-      id: 1,
-      title: 'Test Quiz',
-      course: 10,
-      time_limit_minutes: 30,
-      is_active: true,
-      question_count: 5
-    }];
-    
+    const mockList: QuizListResponse[] = [
+      {
+        id: 1,
+        title: 'Test Quiz',
+        course: 10,
+        time_limit_minutes: 30,
+        is_active: true,
+        question_count: 5,
+      },
+    ];
+
     const mockResponse: PaginatedResponse<QuizListResponse[]> = {
       count: 1,
       next: null,
       previous: null,
-      results: mockList
+      results: mockList,
     };
     djangoApiMock.get.mockReturnValue(of(mockResponse));
 
@@ -59,7 +65,7 @@ describe('QuizApiService', () => {
       course: 10,
       time_limit_minutes: 30,
       is_active: true,
-      questions: []
+      questions: [],
     };
     djangoApiMock.get.mockReturnValue(of(mockDetail));
 

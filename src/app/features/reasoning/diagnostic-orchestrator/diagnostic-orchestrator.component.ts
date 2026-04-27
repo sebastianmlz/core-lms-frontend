@@ -15,10 +15,22 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SkeletonModule } from 'primeng/skeleton';
 import { toSignal } from '@angular/core/rxjs-interop';
 
-import { QuizStore, QuizStoreType } from '../../../entities/assessment/model/quiz.store';
-import { ReasoningStore, ReasoningStoreType } from '../../../entities/reasoning/model/reasoning.store';
-import { SessionStore, SessionStoreType } from '../../../entities/session/model/session.store';
-import { CourseStore, CourseStoreType } from '../../../entities/course/model/course.store';
+import {
+  QuizStore,
+  QuizStoreType,
+} from '../../../entities/assessment/model/quiz.store';
+import {
+  ReasoningStore,
+  ReasoningStoreType,
+} from '../../../entities/reasoning/model/reasoning.store';
+import {
+  SessionStore,
+  SessionStoreType,
+} from '../../../entities/session/model/session.store';
+import {
+  CourseStore,
+  CourseStoreType,
+} from '../../../entities/course/model/course.store';
 import { GlobalToastService } from '../../../shared/lib/services/toast.service';
 import { AttemptAnswerInput } from '../../../entities/assessment/model/attempt.types';
 import { extractJwtPayload } from '../../../shared/lib/auth/jwt.utils';
@@ -63,7 +75,10 @@ export class DiagnosticOrchestratorComponent {
   readonly step = signal<OrchestratorStep>('select');
 
   readonly form = this.fb.group({
-    quizId: this.fb.control<number | null>(null, [Validators.required, Validators.min(1)]),
+    quizId: this.fb.control<number | null>(null, [
+      Validators.required,
+      Validators.min(1),
+    ]),
   });
 
   readonly quizIdSignal = toSignal(this.form.controls.quizId.valueChanges, {
@@ -74,7 +89,7 @@ export class DiagnosticOrchestratorComponent {
     const allQuizzes = this.quizStore.quizzes();
     const selectedCourseId = this.courseStore.selectedCourseId();
     if (!selectedCourseId) return allQuizzes;
-    return allQuizzes.filter(q => q.course === selectedCourseId);
+    return allQuizzes.filter((q) => q.course === selectedCourseId);
   });
 
   constructor() {
@@ -113,7 +128,6 @@ export class DiagnosticOrchestratorComponent {
       }
     });
 
-
     // Reset quiz selection when course changes
     effect(() => {
       const courseId = this.courseStore.selectedCourseId();
@@ -127,14 +141,20 @@ export class DiagnosticOrchestratorComponent {
       const status = this.reasoningStore.diagnosticStatus();
       if (status === 'success') {
         this.step.set('result');
-        this.toast.success('Ruta Adaptativa lista', 'El motor IA procesó tu evaluación.');
+        this.toast.success(
+          'Ruta Adaptativa lista',
+          'El motor IA procesó tu evaluación.',
+        );
 
         // Auto-load cognitive graph
         const plan = this.reasoningStore.adaptivePlan();
         if (plan && this.showCognitiveShadow) {
           const topics = plan.items.map((i) => i.topic);
           if (topics.length > 0 && this._studentId) {
-            void this.reasoningStore.loadCognitiveGraph(String(this._studentId), topics);
+            void this.reasoningStore.loadCognitiveGraph(
+              String(this._studentId),
+              topics,
+            );
           }
         }
       }
@@ -148,7 +168,9 @@ export class DiagnosticOrchestratorComponent {
 
   private _studentId: number | null = null;
 
-  get selectedQuiz() { return this.quizStore.selectedQuizDetail(); }
+  get selectedQuiz() {
+    return this.quizStore.selectedQuizDetail();
+  }
 
   selectQuiz(): void {
     const quizId = this.form.controls.quizId.value;
@@ -158,7 +180,10 @@ export class DiagnosticOrchestratorComponent {
 
   async onQuizSubmitted(answers: AttemptAnswerInput[]): Promise<void> {
     if (!this._studentId) {
-      this.toast.error('Error de sesión', 'No se pudo obtener el ID del estudiante.');
+      this.toast.error(
+        'Error de sesión',
+        'No se pudo obtener el ID del estudiante.',
+      );
       return;
     }
     const quizId = this.form.controls.quizId.value;

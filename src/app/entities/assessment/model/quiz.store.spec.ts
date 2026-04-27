@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { vi } from 'vitest';
+import { vi, Mock } from 'vitest';
 import { QuizApiService } from '../api/quiz.api';
 import { QuizStore } from './quiz.store';
 import { QuizDetailResponse, QuizListResponse } from './quiz.types';
 
 describe('QuizStore', () => {
-  let quizApiMock: any;
+  let quizApiMock: { getQuizzes: Mock; getQuizDetail: Mock };
 
   beforeEach(() => {
     quizApiMock = {
@@ -32,7 +32,9 @@ describe('QuizStore', () => {
   });
 
   it('should load quizzes successfully', async () => {
-    const mockResponse: QuizListResponse[] = [{ id: 1, title: 'Quiz 1' } as QuizListResponse];
+    const mockResponse: QuizListResponse[] = [
+      { id: 1, title: 'Quiz 1' } as QuizListResponse,
+    ];
     quizApiMock.getQuizzes.mockReturnValue(of(mockResponse));
 
     const store = TestBed.inject(QuizStore);
@@ -44,7 +46,9 @@ describe('QuizStore', () => {
   });
 
   it('should handle error when loading quizzes', async () => {
-    quizApiMock.getQuizzes.mockReturnValue(throwError(() => new Error('API Error')));
+    quizApiMock.getQuizzes.mockReturnValue(
+      throwError(() => new Error('API Error')),
+    );
 
     const store = TestBed.inject(QuizStore);
     await store.loadQuizzes();
@@ -55,8 +59,11 @@ describe('QuizStore', () => {
   });
 
   it('should load quiz detail successfully', async () => {
-    const mockDetail: QuizDetailResponse = { id: 1, title: 'Quiz Details' } as QuizDetailResponse;
-    quizApiMock.getQuizDetail.and.returnValue(of(mockDetail));
+    const mockDetail: QuizDetailResponse = {
+      id: 1,
+      title: 'Quiz Details',
+    } as QuizDetailResponse;
+    quizApiMock.getQuizDetail.mockReturnValue(of(mockDetail));
 
     const store = TestBed.inject(QuizStore);
     await store.loadQuizDetail(1);
@@ -67,7 +74,9 @@ describe('QuizStore', () => {
   });
 
   it('should handle error when loading quiz detail', async () => {
-    quizApiMock.getQuizDetail.mockReturnValue(throwError(() => new Error('API Error')));
+    quizApiMock.getQuizDetail.mockReturnValue(
+      throwError(() => new Error('API Error')),
+    );
 
     const store = TestBed.inject(QuizStore);
     await store.loadQuizDetail(1);
@@ -78,7 +87,10 @@ describe('QuizStore', () => {
   });
 
   it('should clear quiz detail', async () => {
-    const mockDetail: QuizDetailResponse = { id: 1, title: 'Quiz Details' } as QuizDetailResponse;
+    const mockDetail: QuizDetailResponse = {
+      id: 1,
+      title: 'Quiz Details',
+    } as QuizDetailResponse;
     quizApiMock.getQuizDetail.mockReturnValue(of(mockDetail));
 
     const store = TestBed.inject(QuizStore);

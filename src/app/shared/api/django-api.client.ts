@@ -1,8 +1,4 @@
-import {
-  HttpClient,
-  HttpContext,
-  HttpHeaders,
-} from '@angular/common/http';
+import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_TARGET, SKIP_AUTH, SKIP_REFRESH } from './http-context.tokens';
@@ -21,7 +17,10 @@ export interface ApiClientOptions {
 export class DjangoApiClient {
   private readonly http = inject(HttpClient);
 
-  get<TResponse>(url: string, options: ApiClientOptions = {}): Observable<TResponse> {
+  get<TResponse>(
+    url: string,
+    options: ApiClientOptions = {},
+  ): Observable<TResponse> {
     return this.http.get<TResponse>(url, this.buildOptions(options));
   }
 
@@ -41,7 +40,10 @@ export class DjangoApiClient {
     return this.http.patch<TResponse>(url, body, this.buildOptions(options));
   }
 
-  delete<TResponse>(url: string, options: ApiClientOptions = {}): Observable<TResponse> {
+  delete<TResponse>(
+    url: string,
+    options: ApiClientOptions = {},
+  ): Observable<TResponse> {
     return this.http.delete<TResponse>(url, this.buildOptions(options));
   }
 
@@ -65,12 +67,15 @@ export class DjangoApiClient {
       return undefined;
     }
 
-    return Object.entries(params).reduce<Record<string, string>>((acc, [key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        acc[key] = String(value);
-      }
+    return Object.entries(params).reduce<Record<string, string>>(
+      (acc, [key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          acc[key] = String(value);
+        }
 
-      return acc;
-    }, {});
+        return acc;
+      },
+      {},
+    );
   }
 }

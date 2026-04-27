@@ -4,7 +4,10 @@ import { SessionStore } from '../../../entities/session/model/session.store';
 import { API_TARGET, SKIP_AUTH } from '../http-context.tokens';
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
-  if (request.context.get(SKIP_AUTH) || request.context.get(API_TARGET) !== 'django') {
+  if (
+    request.context.get(SKIP_AUTH) ||
+    request.context.get(API_TARGET) !== 'django'
+  ) {
     return next(request);
   }
 

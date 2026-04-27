@@ -1,7 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { DjangoApiClient } from '../../../shared/api/django-api.client';
-import { RefreshTokenResponse, TokenPairResponse } from '../model/session.types';
+import {
+  RefreshTokenResponse,
+  TokenPairResponse,
+} from '../model/session.types';
 
 interface LoginRequest {
   username: string;
@@ -17,10 +20,14 @@ export class AuthApiService {
   private readonly djangoApi = inject(DjangoApiClient);
 
   login(payload: LoginRequest): Observable<TokenPairResponse> {
-    return this.djangoApi.post<TokenPairResponse, LoginRequest>('/api/v1/auth/token/', payload, {
-      skipAuth: true,
-      skipRefresh: true,
-    });
+    return this.djangoApi.post<TokenPairResponse, LoginRequest>(
+      '/api/v1/auth/token/',
+      payload,
+      {
+        skipAuth: true,
+        skipRefresh: true,
+      },
+    );
   }
 
   refreshToken(refresh: string): Observable<RefreshTokenResponse> {

@@ -3,6 +3,7 @@
 Este documento está pensado como guía operativa para que tú o un asistente automatizado (por ejemplo, Copilot) sigan desarrollando el frontend respetando la estructura actual. Incluye flujos detallados, cómo mapear endpoints del backend a clientes y stores, y pasos concretos para continuar el desarrollo.
 
 ## Rutas de los repos locales (para que Copilot las abra)
+
 - Backend principal: `C:\dev\core-lms-backend`
 - Microservicio de razonamiento: `C:\dev\axiom-reasoning-svc`
 - Frontend: `C:\dev\core-lms-frontend`
@@ -10,6 +11,7 @@ Este documento está pensado como guía operativa para que tú o un asistente au
 Coloca estas rutas en la tarea del asistente para que abra y escanee cada repositorio y busque endpoints, documentación y `.md` orientativos.
 
 ## Comandos básicos
+
 - Instalar dependencias:
 
   npm install
@@ -38,6 +40,7 @@ Revisa `package.json` para scripts adicionales.
 - `src/environments/` — configuración por entorno.
 
 Dentro de `src/app/`:
+
 - `app.ts`, `app.routes.ts`, `app.config.ts`: bootstrap y rutas.
 - `entities/` (por dominio):
   - `<dominio>/api/*.api.ts` — funciones que llaman a endpoints HTTP.
@@ -49,7 +52,8 @@ Dentro de `src/app/`:
 
 ## Flujos clave (detallados)
 
-1) Autenticación (Login / Session)
+1. Autenticación (Login / Session)
+
 - Qué buscar en backend:
   - En `C:\dev\core-lms-backend`, buscar archivos `urls.py`, `views.py`, `api.py`, `auth` o `rest_framework`.
   - Buscar endpoints tipo `/api/auth/login/`, `/api/session/`, `/api/token/refresh/` o similares.
@@ -68,7 +72,8 @@ Dentro de `src/app/`:
   - Actualizar/crear la función cliente en `entities/session/api/auth.api.ts` con la URL correcta y payload tipado.
   - Asegurar que `session.store.ts` persista el token y exponga helpers `isAuthenticated()`.
 
-2) Listado y detalle de cursos
+2. Listado y detalle de cursos
+
 - Qué buscar en backend:
   - Endpoints tipo `/api/courses/`, `/api/courses/<id>/` en `C:\dev\core-lms-backend`.
 - Qué hay en frontend:
@@ -84,7 +89,8 @@ Dentro de `src/app/`:
   - Generar/migrar funciones cliente con manejo de errores y cargas (loading states) en el store.
   - Añadir tests unitarios básicos para la store y el API client.
 
-3) Flujo de razonamiento / microservicio (axiom-reasoning-svc)
+3. Flujo de razonamiento / microservicio (axiom-reasoning-svc)
+
 - Qué buscar en microservicio:
   - `C:\dev\axiom-reasoning-svc`, busca `routes`, `api`, `controllers`, o `openapi`.
   - Encontrar endpoints que procesan peticiones de razonamiento (p. ej. `/api/reasoning/run/`, `/api/reasoning/status/`).
@@ -99,7 +105,8 @@ Dentro de `src/app/`:
   - Detectar si la comunicación debe hacerse contra el microservicio directo o a través del backend principal.
   - Añadir clientes con timeouts y manejo de jobs/colas (si aplica).
 
-4) Estado de sesión y almacenamiento local
+4. Estado de sesión y almacenamiento local
+
 - Centralizar en `entities/session/model/session.store.ts` y `shared/api/interceptors`:
   - Guardar tokens y expiración.
   - Implementar refresh token flow si el backend lo soporta.
@@ -155,4 +162,5 @@ npm start
 - Puedo generar plantillas de `api/*.api.ts` y `model/*.store.ts` para un dominio (elige `course`, `session` o `reasoning`).
 
 ---
+
 Archivo actualizado para guiar la continuación del frontend y para que Copilot pueda usarlo como plan de trabajo: [FRONTEND_OVERVIEW.md](FRONTEND_OVERVIEW.md)

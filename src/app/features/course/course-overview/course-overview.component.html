@@ -1,24 +1,43 @@
-<section class="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+<section
+  class="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+>
   <header class="flex flex-wrap items-center justify-between gap-2">
     <div>
       <h2 class="text-lg font-semibold text-slate-900">Catalogo de Cursos</h2>
-      <p class="text-xs text-slate-500">Selecciona un curso para ver su estructura academica.</p>
+      <p class="text-xs text-slate-500">
+        Selecciona un curso para ver su estructura academica.
+      </p>
     </div>
-    <p-button label="Recargar" size="small" severity="warn" (onClick)="courseStore.loadCourses()" />
+    <p-button
+      label="Recargar"
+      size="small"
+      severity="warn"
+      (onClick)="courseStore.loadCourses()"
+    />
   </header>
 
   @if (courseStore.isLoading()) {
-    <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
+    <div
+      class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500"
+    >
       Cargando cursos...
     </div>
   } @else {
     <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-2">
       @for (course of courseStore.courses(); track course.id) {
-        <article class="course-card flex h-full flex-col justify-between rounded-xl border border-slate-200 p-4">
+        <article
+          class="course-card flex h-full flex-col justify-between rounded-xl border border-slate-200 p-4"
+        >
           <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-teal-700">{{ course.code }}</p>
+            <p
+              class="text-xs font-semibold uppercase tracking-[0.2em] text-teal-700"
+            >
+              {{ course.code }}
+            </p>
             <h3 class="mt-1 text-base font-semibold">{{ course.name }}</h3>
-            <p class="mt-2 line-clamp-3 text-sm text-slate-600">{{ course.description || 'Sin descripcion.' }}</p>
+            <p class="mt-2 line-clamp-3 text-sm text-slate-600">
+              {{ course.description || 'Sin descripcion.' }}
+            </p>
           </div>
           <div class="mt-4 flex flex-col gap-2">
             <div class="flex items-center gap-2">
@@ -57,25 +76,36 @@
   }
 
   @if (courseStore.selectedCourseDetail(); as detail) {
-    <section class="space-y-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <section
+      class="space-y-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4"
+    >
+      <div
+        class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+      >
         <div>
-          <h3 class="text-base font-semibold text-emerald-900">{{ detail.code }} - {{ detail.name }}</h3>
-          <p class="mt-1 text-sm text-emerald-800/90">{{ detail.description || 'Sin descripcion.' }}</p>
+          <h3 class="text-base font-semibold text-emerald-900">
+            {{ detail.code }} - {{ detail.name }}
+          </h3>
+          <p class="mt-1 text-sm text-emerald-800/90">
+            {{ detail.description || 'Sin descripcion.' }}
+          </p>
         </div>
         @if (!enableTutorAnalytics) {
           <div class="flex flex-col items-end">
-             <p-button 
-               label="Generar Certificado" 
-               icon="pi pi-verified"
-               severity="success" 
-               size="small"
-               [loading]="certificateStore.isGenerating()"
-               (onClick)="generateCertificate(detail.id)"
-             />
-             @if (certificateStore.error(); as certError) {
-               <span class="text-xs text-red-600 mt-2 font-bold max-w-xs text-right">{{ certError }}</span>
-             }
+            <p-button
+              label="Generar Certificado"
+              icon="pi pi-verified"
+              severity="success"
+              size="small"
+              [loading]="certificateStore.isGenerating()"
+              (onClick)="generateCertificate(detail.id)"
+            />
+            @if (certificateStore.error(); as certError) {
+              <span
+                class="text-xs text-red-600 mt-2 font-bold max-w-xs text-right"
+                >{{ certError }}</span
+              >
+            }
           </div>
         }
       </div>
@@ -83,8 +113,12 @@
       <div class="grid gap-2 md:grid-cols-2">
         @for (module of detail.modules; track module.id) {
           <article class="rounded-lg border border-emerald-100 bg-white p-3">
-            <p class="text-sm font-semibold text-slate-900">Modulo {{ module.order }}: {{ module.title }}</p>
-            <p class="mt-1 text-xs text-slate-600">Lecciones: {{ module.lessons?.length ?? 0 }}</p>
+            <p class="text-sm font-semibold text-slate-900">
+              Modulo {{ module.order }}: {{ module.title }}
+            </p>
+            <p class="mt-1 text-xs text-slate-600">
+              Lecciones: {{ module.lessons?.length ?? 0 }}
+            </p>
           </article>
         }
       </div>
@@ -92,35 +126,56 @@
       <!-- Quizzes Section -->
       <div class="mt-6 border-t border-emerald-100 pt-4">
         <div class="flex items-center justify-between mb-3">
-          <h4 class="text-sm font-bold uppercase tracking-wider text-emerald-800">Evaluaciones (Quizzes)</h4>
+          <h4
+            class="text-sm font-bold uppercase tracking-wider text-emerald-800"
+          >
+            Evaluaciones (Quizzes)
+          </h4>
         </div>
-        
+
         <div class="grid gap-2 sm:grid-cols-2">
           @for (quiz of courseStore.selectedCourseQuizzes(); track quiz.id) {
-            <article class="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+            <article
+              class="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-3 shadow-sm"
+            >
               <div>
-                <p class="text-sm font-semibold text-slate-900">{{ quiz.title }}</p>
-                <p class="text-xs text-slate-500">{{ quiz.question_count }} preguntas · {{ quiz.time_limit_minutes }} min</p>
+                <p class="text-sm font-semibold text-slate-900">
+                  {{ quiz.title }}
+                </p>
+                <p class="text-xs text-slate-500">
+                  {{ quiz.question_count }} preguntas ·
+                  {{ quiz.time_limit_minutes }} min
+                </p>
               </div>
               <div class="flex gap-1">
                 @if (enableTutorAnalytics) {
-                  <p-button 
-                    icon="pi pi-trash" 
-                    size="small" 
-                    [rounded]="true" 
-                    [text]="true" 
-                    severity="danger" 
-                    title="Eliminar Quiz" 
+                  <p-button
+                    icon="pi pi-trash"
+                    size="small"
+                    [rounded]="true"
+                    [text]="true"
+                    severity="danger"
+                    title="Eliminar Quiz"
                     (onClick)="deleteQuiz(quiz.id)"
                   />
                 } @else {
-                  <p-button label="Comenzar" size="small" [outlined]="true" icon="pi pi-play" (onClick)="navigateToCourse(detail.id)" />
+                  <p-button
+                    label="Comenzar"
+                    size="small"
+                    [outlined]="true"
+                    icon="pi pi-play"
+                    (onClick)="navigateToCourse(detail.id)"
+                  />
                 }
               </div>
             </article>
           } @empty {
-            <div class="col-span-full rounded-lg bg-emerald-100/50 p-4 text-center">
-              <p class="text-xs text-emerald-800 italic">No hay evaluaciones configuradas para este curso.</p>
+            <div
+              class="col-span-full rounded-lg bg-emerald-100/50 p-4 text-center"
+            >
+              <p class="text-xs text-emerald-800 italic">
+                No hay evaluaciones configuradas para este curso.
+              </p>
             </div>
           }
         </div>
@@ -129,41 +184,70 @@
   }
 
   @if (enableTutorAnalytics) {
-    <section class="space-y-3 rounded-xl border border-indigo-200 bg-indigo-50 p-4">
-      <h3 class="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-700">Insight del Tutor</h3>
+    <section
+      class="space-y-3 rounded-xl border border-indigo-200 bg-indigo-50 p-4"
+    >
+      <h3
+        class="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-700"
+      >
+        Insight del Tutor
+      </h3>
 
       @if (courseStore.isLoadingDashboard()) {
         <p class="text-sm text-indigo-700">Calculando metricas del curso...</p>
       } @else if (courseStore.selectedCourseDashboard(); as dashboard) {
         <div class="grid gap-2 sm:grid-cols-2">
           <article class="rounded-lg bg-white p-3">
-            <p class="text-xs uppercase tracking-[0.15em] text-slate-500">Estudiantes</p>
-            <p class="text-xl font-semibold text-slate-900">{{ dashboard.total_enrolled_students }}</p>
+            <p class="text-xs uppercase tracking-[0.15em] text-slate-500">
+              Estudiantes
+            </p>
+            <p class="text-xl font-semibold text-slate-900">
+              {{ dashboard.total_enrolled_students }}
+            </p>
           </article>
           <article class="rounded-lg bg-white p-3">
-            <p class="text-xs uppercase tracking-[0.15em] text-slate-500">Promedio quiz</p>
-            <p class="text-xl font-semibold text-slate-900">{{ dashboard.average_quiz_score | number: '1.1-1' }}</p>
+            <p class="text-xs uppercase tracking-[0.15em] text-slate-500">
+              Promedio quiz
+            </p>
+            <p class="text-xl font-semibold text-slate-900">
+              {{ dashboard.average_quiz_score | number: '1.1-1' }}
+            </p>
           </article>
         </div>
 
         <div>
-          <p class="text-xs font-semibold uppercase tracking-[0.15em] text-indigo-700">Top failed concepts</p>
+          <p
+            class="text-xs font-semibold uppercase tracking-[0.15em] text-indigo-700"
+          >
+            Top failed concepts
+          </p>
           <div class="mt-2 flex flex-wrap gap-2">
-            @for (concept of dashboard.top_failed_concepts; track concept.concept_id) {
-              <span class="rounded-full border border-indigo-200 bg-white px-3 py-1 text-xs font-medium text-indigo-800">
+            @for (
+              concept of dashboard.top_failed_concepts;
+              track concept.concept_id
+            ) {
+              <span
+                class="rounded-full border border-indigo-200 bg-white px-3 py-1 text-xs font-medium text-indigo-800"
+              >
                 {{ concept.concept_id }} ({{ concept.fail_count }})
               </span>
             } @empty {
-              <span class="text-xs text-slate-600">No hay conceptos fallidos registrados para este curso.</span>
+              <span class="text-xs text-slate-600"
+                >No hay conceptos fallidos registrados para este curso.</span
+              >
             }
           </div>
         </div>
       } @else {
-        <p class="text-sm text-slate-600">Selecciona un curso para cargar metricas del dashboard.</p>
+        <p class="text-sm text-slate-600">
+          Selecciona un curso para cargar metricas del dashboard.
+        </p>
       }
 
       @if (courseStore.dashboardError(); as dashboardErrorMessage) {
-        <p class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p
+          class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+        >
           {{ dashboardErrorMessage }}
         </p>
       }
@@ -171,7 +255,9 @@
   }
 
   @if (courseStore.error(); as errorMessage) {
-    <p class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+    <p
+      class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+    >
       {{ errorMessage }}
     </p>
   }

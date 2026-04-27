@@ -1,12 +1,27 @@
-import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ChangeDetectorRef,
+  effect,
+  inject,
+} from '@angular/core';
+import {
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { Button } from 'primeng/button';
 import { Select } from 'primeng/select';
 import { MultiSelect } from 'primeng/multiselect';
 import { Dialog } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { CourseStore, CourseStoreType } from '../../../entities/course/model/course.store';
+import {
+  CourseStore,
+  CourseStoreType,
+} from '../../../entities/course/model/course.store';
 import { CourseOverviewComponent } from '../../../features/course/course-overview/course-overview.component';
 import { CognitiveShadowComponent } from '../../../features/reasoning/cognitive-shadow/cognitive-shadow.component';
 import { QuizApiService } from '../../../entities/assessment/api/quiz.api';
@@ -33,6 +48,7 @@ import {
 })
 export class TutorDashboardPageComponent {
   private readonly formBuilder = inject(FormBuilder);
+  private readonly cdr = inject(ChangeDetectorRef);
   readonly courseStore = inject(CourseStore) as CourseStoreType;
   readonly reasoningStore = inject(ReasoningStore) as ReasoningStoreType;
   private readonly quizApi = inject(QuizApiService);
@@ -76,30 +92,38 @@ export class TutorDashboardPageComponent {
   }
 
   addChoice(questionIndex: number) {
-    const choices = this.questions.at(questionIndex).get('choices') as FormArray;
+    const choices = this.questions
+      .at(questionIndex)
+      .get('choices') as FormArray;
     choices.push(this.createChoice());
   }
 
   removeChoice(questionIndex: number, choiceIndex: number) {
-    const choices = this.questions.at(questionIndex).get('choices') as FormArray;
+    const choices = this.questions
+      .at(questionIndex)
+      .get('choices') as FormArray;
     choices.removeAt(choiceIndex);
   }
 
   setCorrectChoice(questionIndex: number, choiceIndex: number) {
-    const choices = this.questions.at(questionIndex).get('choices') as FormArray;
+    const choices = this.questions
+      .at(questionIndex)
+      .get('choices') as FormArray;
     choices.controls.forEach((control, i) => {
       control.get('is_correct')?.setValue(i === choiceIndex);
     });
   }
 
   getChoices(questionIndex: number) {
-    const choices = this.questions.at(questionIndex).get('choices') as FormArray;
+    const choices = this.questions
+      .at(questionIndex)
+      .get('choices') as FormArray;
     return choices.controls as FormGroup[];
   }
 
   readonly graphForm = this.formBuilder.nonNullable.group({
     studentId: ['', [Validators.required]],
-    topics: [<string[]>[], [Validators.required]],
+    topics: [[] as string[], [Validators.required]],
     targetTopic: [''],
   });
 
@@ -107,13 +131,15 @@ export class TutorDashboardPageComponent {
     effect(() => {
       const dashboard = this.courseStore.selectedCourseDashboard();
       console.log('[TutorDashboard] Dashboard data:', dashboard);
-      
+
       if (!dashboard || dashboard.course_id === this.lastDashboardCourseId) {
         return;
       }
- 
+
       this.lastDashboardCourseId = dashboard.course_id;
-      const suggestedTopics = dashboard.top_failed_concepts.map((topic) => topic.concept_id);
+      const suggestedTopics = dashboard.top_failed_concepts.map(
+        (topic) => topic.concept_id,
+      );
       this.graphForm.patchValue({ topics: suggestedTopics });
     });
   }
@@ -124,7 +150,9 @@ export class TutorDashboardPageComponent {
       return;
     }
 
-    const suggestedTopics = dashboard.top_failed_concepts.map((topic) => topic.concept_id);
+    const suggestedTopics = dashboard.top_failed_concepts.map(
+      (topic) => topic.concept_id,
+    );
     this.graphForm.patchValue({ topics: suggestedTopics });
   }
 
@@ -136,36 +164,50 @@ export class TutorDashboardPageComponent {
 
     const topics = this.graphForm.controls.topics.value;
     const target = this.graphForm.controls.targetTopic.value || undefined;
-    await this.reasoningStore.loadCognitiveGraph(this.graphForm.controls.studentId.value, topics, target);
+    await this.reasoningStore.loadCognitiveGraph(
+      this.graphForm.controls.studentId.value,
+      topics,
+      target,
+    );
   }
- 
+
   async submitQuiz(): Promise<void> {
     const course = this.courseStore.selectedCourseDashboard();
     if (this.quizForm.invalid || !course) {
       this.quizForm.markAllAsTouched();
       return;
     }
- 
+
+    interface QuestionFormValue {
+      text: string;
+      concept_id: string | number;
+      order: number;
+      choices: { text: string; is_correct: boolean | null }[];
+    }
+
     const payload = {
       course: course.course_id,
       title: this.quizForm.value.title,
       description: this.quizForm.value.description,
       time_limit_minutes: this.quizForm.value.timeLimit,
       is_active: true,
-      questions: this.quizForm.value.questions?.map((q: any) => ({
-        text: q.text,
-        concept_id: q.concept_id,
-        order: q.order,
-        choices: q.choices.map((c: any) => ({
-          text: c.text,
-          is_correct: !!c.is_correct,
-        })),
-      })),
+      questions: (this.quizForm.value.questions as QuestionFormValue[])?.map(
+        (q) => ({
+          text: q.text,
+          concept_id: q.concept_id,
+          order: q.order,
+          choices: q.choices.map((c) => ({
+            text: c.text,
+            is_correct: !!c.is_correct,
+          })),
+        }),
+      ),
     };
- 
+
     try {
       await firstValueFrom(this.quizApi.createQuiz(payload));
       this.showCreateQuiz = false;
+      this.cdr.markForCheck();
       this.quizForm.reset({ timeLimit: 30 });
       this.questions.clear();
       void this.courseStore.loadCourseQuizzes(course.course_id);

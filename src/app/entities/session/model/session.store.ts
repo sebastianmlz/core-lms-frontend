@@ -1,12 +1,17 @@
 import { computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
+import {
+  patchState,
+  signalStore,
+  withComputed,
+  withMethods,
+  withState,
+} from '@ngrx/signals';
 import { firstValueFrom } from 'rxjs';
 import { SESSION_STORAGE_KEYS } from '../../../shared/config/api.config';
 import { extractJwtPayload } from '../../../shared/lib/auth/jwt.utils';
 import { AuthApiService } from '../api/auth.api';
 import { LoginCredentials, SessionState, UserRole } from './session.types';
-import { AxiomVarkProfile } from '../../../shared/lib/vark/vark.utils';
 
 const initialState: SessionState = {
   accessToken: null,
@@ -40,10 +45,17 @@ function writeStorageValue(key: string, value: string | null): void {
   }
 }
 
-function parseDetailsFromToken(accessToken: string): { role: UserRole | null, userId: number | null } {
+function parseDetailsFromToken(accessToken: string): {
+  role: UserRole | null;
+  userId: number | null;
+} {
   const payload = extractJwtPayload(accessToken);
-  const role = (payload?.['role'] === 'STUDENT' || payload?.['role'] === 'TUTOR') ? payload['role'] : null;
-  const userId = typeof payload?.['user_id'] === 'number' ? payload['user_id'] : null;
+  const role =
+    payload?.['role'] === 'STUDENT' || payload?.['role'] === 'TUTOR'
+      ? payload['role']
+      : null;
+  const userId =
+    typeof payload?.['user_id'] === 'number' ? payload['user_id'] : null;
 
   return { role, userId };
 }
@@ -54,82 +66,99 @@ export const SessionStore = signalStore(
   withComputed((store) => ({
     isAuthenticated: computed(() => Boolean(store.accessToken())),
   })),
-  withMethods((store, authApi = inject(AuthApiService), router = inject(Router)) => ({
-    hydrate(): void {
-      patchState(store, {
-        accessToken: readStorageValue(SESSION_STORAGE_KEYS.accessToken),
-        refreshToken: readStorageValue(SESSION_STORAGE_KEYS.refreshToken),
-        activeRole: (readStorageValue(SESSION_STORAGE_KEYS.activeRole) as UserRole | null) ?? null,
-        username: readStorageValue(SESSION_STORAGE_KEYS.username),
-        userId: readStorageValue(SESSION_STORAGE_KEYS.userId) ? Number(readStorageValue(SESSION_STORAGE_KEYS.userId)) : null,
-        dominantVark: readStorageValue(SESSION_STORAGE_KEYS.dominantVark),
-      });
-    },
-    async login(credentials: LoginCredentials): Promise<boolean> {
-      patchState(store, { isLoading: true, error: null });
+  withMethods(
+    (store, authApi = inject(AuthApiService), router = inject(Router)) => ({
+      hydrate(): void {
+        patchState(store, {
+          accessToken: readStorageValue(SESSION_STORAGE_KEYS.accessToken),
+          refreshToken: readStorageValue(SESSION_STORAGE_KEYS.refreshToken),
+          activeRole:
+            (readStorageValue(
+              SESSION_STORAGE_KEYS.activeRole,
+            ) as UserRole | null) ?? null,
+          username: readStorageValue(SESSION_STORAGE_KEYS.username),
+          userId: readStorageValue(SESSION_STORAGE_KEYS.userId)
+            ? Number(readStorageValue(SESSION_STORAGE_KEYS.userId))
+            : null,
+          dominantVark: readStorageValue(SESSION_STORAGE_KEYS.dominantVark),
+        });
+      },
+      async login(credentials: LoginCredentials): Promise<boolean> {
+        patchState(store, { isLoading: true, error: null });
 
-      try {
-        const response = await firstValueFrom(
-          authApi.login({
+        try {
+          const response = await firstValueFrom(
+            authApi.login({
+              username: credentials.username,
+              password: credentials.password,
+            }),
+          );
+
+          const parsedDetails = parseDetailsFromToken(response.access);
+          const activeRole =
+            response.role ?? parsedDetails.role ?? credentials.preferredRole;
+          const userId = parsedDetails.userId;
+
+          writeStorageValue(SESSION_STORAGE_KEYS.accessToken, response.access);
+          writeStorageValue(
+            SESSION_STORAGE_KEYS.refreshToken,
+            response.refresh,
+          );
+          writeStorageValue(SESSION_STORAGE_KEYS.activeRole, activeRole);
+          writeStorageValue(
+            SESSION_STORAGE_KEYS.username,
+            credentials.username,
+          );
+          writeStorageValue(
+            SESSION_STORAGE_KEYS.userId,
+            userId ? userId.toString() : null,
+          );
+
+          patchState(store, {
+            accessToken: response.access,
+            refreshToken: response.refresh,
+            activeRole,
             username: credentials.username,
-            password: credentials.password,
-          }),
-        );
+            userId,
+            isLoading: false,
+            error: null,
+          });
 
-        const parsedDetails = parseDetailsFromToken(response.access);
-        const activeRole = response.role ?? parsedDetails.role ?? credentials.preferredRole;
-        const userId = parsedDetails.userId;
+          return true;
+        } catch {
+          patchState(store, {
+            isLoading: false,
+            error: 'No se pudo iniciar sesion. Verifica tus credenciales.',
+          });
 
-        writeStorageValue(SESSION_STORAGE_KEYS.accessToken, response.access);
-        writeStorageValue(SESSION_STORAGE_KEYS.refreshToken, response.refresh);
-        writeStorageValue(SESSION_STORAGE_KEYS.activeRole, activeRole);
-        writeStorageValue(SESSION_STORAGE_KEYS.username, credentials.username);
-        writeStorageValue(SESSION_STORAGE_KEYS.userId, userId ? userId.toString() : null);
+          return false;
+        }
+      },
+      updateAccessToken(newAccessToken: string): void {
+        writeStorageValue(SESSION_STORAGE_KEYS.accessToken, newAccessToken);
+        patchState(store, { accessToken: newAccessToken });
+      },
+      setActiveRole(role: UserRole): void {
+        writeStorageValue(SESSION_STORAGE_KEYS.activeRole, role);
+        patchState(store, { activeRole: role });
+      },
+      setDominantVark(vark: string): void {
+        writeStorageValue(SESSION_STORAGE_KEYS.dominantVark, vark);
+        patchState(store, { dominantVark: vark });
+      },
+      logout(): void {
+        writeStorageValue(SESSION_STORAGE_KEYS.accessToken, null);
+        writeStorageValue(SESSION_STORAGE_KEYS.refreshToken, null);
+        writeStorageValue(SESSION_STORAGE_KEYS.activeRole, null);
+        writeStorageValue(SESSION_STORAGE_KEYS.username, null);
+        writeStorageValue(SESSION_STORAGE_KEYS.userId, null);
+        writeStorageValue(SESSION_STORAGE_KEYS.dominantVark, null);
 
-        patchState(store, {
-          accessToken: response.access,
-          refreshToken: response.refresh,
-          activeRole,
-          username: credentials.username,
-          userId,
-          isLoading: false,
-          error: null,
-        });
-
-        return true;
-      } catch {
-        patchState(store, {
-          isLoading: false,
-          error: 'No se pudo iniciar sesion. Verifica tus credenciales.',
-        });
-
-        return false;
-      }
-    },
-    updateAccessToken(newAccessToken: string): void {
-      writeStorageValue(SESSION_STORAGE_KEYS.accessToken, newAccessToken);
-      patchState(store, { accessToken: newAccessToken });
-    },
-    setActiveRole(role: UserRole): void {
-      writeStorageValue(SESSION_STORAGE_KEYS.activeRole, role);
-      patchState(store, { activeRole: role });
-    },
-    setDominantVark(vark: string): void {
-      writeStorageValue(SESSION_STORAGE_KEYS.dominantVark, vark);
-      patchState(store, { dominantVark: vark });
-    },
-    logout(): void {
-      writeStorageValue(SESSION_STORAGE_KEYS.accessToken, null);
-      writeStorageValue(SESSION_STORAGE_KEYS.refreshToken, null);
-      writeStorageValue(SESSION_STORAGE_KEYS.activeRole, null);
-      writeStorageValue(SESSION_STORAGE_KEYS.username, null);
-      writeStorageValue(SESSION_STORAGE_KEYS.userId, null);
-      writeStorageValue(SESSION_STORAGE_KEYS.dominantVark, null);
-
-      patchState(store, { ...initialState });
-      void router.navigate(['/login']);
-    },
-  })),
+        patchState(store, { ...initialState });
+        void router.navigate(['/login']);
+      },
+    }),
+  ),
 );
 
 export type SessionStoreType = InstanceType<typeof SessionStore>;

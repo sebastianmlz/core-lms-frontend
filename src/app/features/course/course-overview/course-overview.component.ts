@@ -1,12 +1,26 @@
 import { DecimalPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Input, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  inject,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { Button } from 'primeng/button';
-import { CourseStore, CourseStoreType } from '../../../entities/course/model/course.store';
+import {
+  CourseStore,
+  CourseStoreType,
+} from '../../../entities/course/model/course.store';
 import { QuizApiService } from '../../../entities/assessment/api/quiz.api';
 import { firstValueFrom } from 'rxjs';
-import { CertificateStore, CertificateStoreType } from '../../../entities/certificate/model/certificate.store';
-import { SessionStore, SessionStoreType } from '../../../entities/session/model/session.store';
+import {
+  CertificateStore,
+  CertificateStoreType,
+} from '../../../entities/certificate/model/certificate.store';
+import {
+  SessionStore,
+  SessionStoreType,
+} from '../../../entities/session/model/session.store';
 
 @Component({
   selector: 'app-course-overview',
@@ -45,7 +59,9 @@ export class CourseOverviewComponent {
     const courseId = this.courseStore.selectedCourseId();
     if (!courseId) return;
 
-    const confirmDelete = confirm('¿Estás seguro de que deseas eliminar esta evaluación? Esta acción no se puede deshacer.');
+    const confirmDelete = confirm(
+      '¿Estás seguro de que deseas eliminar esta evaluación? Esta acción no se puede deshacer.',
+    );
     if (!confirmDelete) return;
 
     try {
@@ -58,8 +74,8 @@ export class CourseOverviewComponent {
 
   navigateToCourse(courseId: number): void {
     if (!this.enableTutorAnalytics) {
-       void this.router.navigate(['/student/course', courseId]);
-       return;
+      void this.router.navigate(['/student/course', courseId]);
+      return;
     }
     void this.router.navigate(['/tutor/course', courseId]);
   }

@@ -1,38 +1,82 @@
 <section class="space-y-8 animate-fadein pb-10">
-  <header class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-indigo-900 via-sky-800 to-teal-800 p-8 md:p-10 text-white shadow-xl">
-    <div class="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-white/10 blur-3xl pointer-events-none"></div>
-    <div class="absolute -bottom-10 -left-10 h-64 w-64 rounded-full bg-emerald-400/20 blur-3xl pointer-events-none"></div>
+  <header
+    class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-indigo-900 via-sky-800 to-teal-800 p-8 md:p-10 text-white shadow-xl"
+  >
+    <div
+      class="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-white/10 blur-3xl pointer-events-none"
+    ></div>
+    <div
+      class="absolute -bottom-10 -left-10 h-64 w-64 rounded-full bg-emerald-400/20 blur-3xl pointer-events-none"
+    ></div>
 
-    <div class="relative z-10 flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+    <div
+      class="relative z-10 flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between"
+    >
       <div class="flex-1">
         <div class="flex items-center gap-4">
-          <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md font-extrabold text-2xl uppercase shadow-inner border border-white/30 text-white">
+          <div
+            class="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md font-extrabold text-2xl uppercase shadow-inner border border-white/30 text-white"
+          >
             {{ (sessionStore.username() || 'U')[0] }}
           </div>
           <div>
-            <p class="text-xs font-semibold uppercase tracking-widest text-sky-200">Ficct / AxiomLMS</p>
-            <h2 class="mt-1 text-3xl font-extrabold tracking-tight">¡Hola, {{ sessionStore.username() || 'Estudiante' }}!</h2>
+            <p
+              class="text-xs font-semibold uppercase tracking-widest text-sky-200"
+            >
+              Ficct / AxiomLMS
+            </p>
+            <h2 class="mt-1 text-3xl font-extrabold tracking-tight">
+              ¡Hola, {{ sessionStore.username() || 'Estudiante' }}!
+            </h2>
           </div>
         </div>
-        <p class="mt-5 text-sm text-sky-100 max-w-xl leading-relaxed text-balance">
-          Bienvenido a tu centro de control de aprendizaje. Revisa tus módulos, evalúa tu dominio en materias clave y dispara rutas adaptativas usando nuestro motor de procesamiento cognitivo IA.
+        <p
+          class="mt-5 text-sm text-sky-100 max-w-xl leading-relaxed text-balance"
+        >
+          Bienvenido a tu centro de control de aprendizaje. Revisa tus módulos,
+          evalúa tu dominio en materias clave y dispara rutas adaptativas usando
+          nuestro motor de procesamiento cognitivo IA.
         </p>
       </div>
 
       <div class="flex flex-wrap gap-4 xl:flex-nowrap">
-        <div class="flex flex-col justify-center rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md p-5 min-w-[140px] shadow-sm transform transition-transform hover:scale-105">
-          <p class="text-xs font-semibold uppercase tracking-wider text-sky-200">Cursos Activos</p>
+        <div
+          class="flex flex-col justify-center rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md p-5 min-w-[140px] shadow-sm transform transition-transform hover:scale-105"
+        >
+          <p
+            class="text-xs font-semibold uppercase tracking-wider text-sky-200"
+          >
+            Cursos Activos
+          </p>
           <div class="flex items-baseline gap-2 mt-2">
-            <span class="text-4xl font-black text-white">{{ activeCoursesCount() }}</span>
+            <span class="text-4xl font-black text-white">{{
+              activeCoursesCount()
+            }}</span>
           </div>
         </div>
-        <div class="flex flex-col justify-center rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md p-5 min-w-[140px] shadow-sm transform transition-transform hover:scale-105">
-          <p class="text-xs font-semibold uppercase tracking-wider text-sky-200">Perfil Dominante</p>
-          <p class="text-2xl font-black mt-2 text-teal-300">{{ dominantProfile() }}</p>
+        <div
+          class="flex flex-col justify-center rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md p-5 min-w-[140px] shadow-sm transform transition-transform hover:scale-105"
+        >
+          <p
+            class="text-xs font-semibold uppercase tracking-wider text-sky-200"
+          >
+            Perfil Dominante
+          </p>
+          <p class="text-2xl font-black mt-2 text-teal-300">
+            {{ dominantProfile() }}
+          </p>
         </div>
-        <div class="flex flex-col justify-center rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md p-5 min-w-[140px] shadow-sm transform transition-transform hover:scale-105">
-          <p class="text-xs font-semibold uppercase tracking-wider text-sky-200">Precisión (Mes)</p>
-          <p class="text-4xl font-black mt-2 text-sky-100">{{ accuracyMetric() }}%</p>
+        <div
+          class="flex flex-col justify-center rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md p-5 min-w-[140px] shadow-sm transform transition-transform hover:scale-105"
+        >
+          <p
+            class="text-xs font-semibold uppercase tracking-wider text-sky-200"
+          >
+            Precisión (Mes)
+          </p>
+          <p class="text-4xl font-black mt-2 text-sky-100">
+            {{ accuracyMetric() }}%
+          </p>
         </div>
       </div>
     </div>
@@ -41,19 +85,29 @@
   <div class="grid gap-8 xl:grid-cols-[1.3fr_1.1fr]">
     <div class="space-y-4">
       <div class="px-2">
-        <h3 class="text-xl font-extrabold text-slate-800">Tus Cursos Asignados</h3>
-        <p class="text-sm text-slate-500 mt-1">Navega por las jerarquías de contenido curricular.</p>
+        <h3 class="text-xl font-extrabold text-slate-800">
+          Tus Cursos Asignados
+        </h3>
+        <p class="text-sm text-slate-500 mt-1">
+          Navega por las jerarquías de contenido curricular.
+        </p>
       </div>
       <app-course-overview [inline]="true" />
     </div>
 
     <div class="space-y-4">
       <div class="px-2">
-        <h3 class="text-xl font-extrabold text-slate-800">Diagnóstico Adaptativo</h3>
-        <p class="text-sm text-slate-500 mt-1">Realiza un quiz inteligente (PUDS) y analiza tus deficiencias.</p>
+        <h3 class="text-xl font-extrabold text-slate-800">
+          Diagnóstico Adaptativo
+        </h3>
+        <p class="text-sm text-slate-500 mt-1">
+          Realiza un quiz inteligente (PUDS) y analiza tus deficiencias.
+        </p>
       </div>
       <!-- Envolvemos con un padding de sombra y fondo unificado para cohesion visual -->
-      <div class="rounded-[2rem] bg-white p-6 shadow-sm border border-slate-200">
+      <div
+        class="rounded-[2rem] bg-white p-6 shadow-sm border border-slate-200"
+      >
         <app-adaptive-plan-form />
       </div>
     </div>

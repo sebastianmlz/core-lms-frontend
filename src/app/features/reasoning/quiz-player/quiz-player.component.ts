@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RadioButton } from 'primeng/radiobutton';
 import { Button } from 'primeng/button';
@@ -14,7 +21,13 @@ import { AttemptAnswerInput } from '../../../entities/assessment/model/attempt.t
  */
 @Component({
   selector: 'app-quiz-player',
-  imports: [FormsModule, RadioButton, Button, SkeletonModule, ProgressBarModule],
+  imports: [
+    FormsModule,
+    RadioButton,
+    Button,
+    SkeletonModule,
+    ProgressBarModule,
+  ],
   templateUrl: './quiz-player.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -41,22 +54,27 @@ export class QuizPlayerComponent {
   }
 
   get allAnswered(): boolean {
-    return this.answeredCount === this.totalQuestions && this.totalQuestions > 0;
+    return (
+      this.answeredCount === this.totalQuestions && this.totalQuestions > 0
+    );
   }
 
   onAnswerSelected(questionId: number, choiceId: number): void {
-    this.selectedAnswers.update((prev) => ({ ...prev, [questionId]: choiceId }));
+    this.selectedAnswers.update((prev) => ({
+      ...prev,
+      [questionId]: choiceId,
+    }));
   }
 
   submit(): void {
     if (!this.allAnswered || this.isSubmitting) return;
 
-    const answers: AttemptAnswerInput[] = Object.entries(this.selectedAnswers()).map(
-      ([qId, cId]) => ({
-        question_id: Number(qId),
-        selected_choice_id: cId,
-      })
-    );
+    const answers: AttemptAnswerInput[] = Object.entries(
+      this.selectedAnswers(),
+    ).map(([qId, cId]) => ({
+      question_id: Number(qId),
+      selected_choice_id: cId,
+    }));
 
     this.submitted.emit(answers);
   }

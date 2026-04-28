@@ -365,170 +365,183 @@
   [resizable]="false"
   styleClass="quiz-dialog"
 >
-  <form [formGroup]="quizForm" class="space-y-4 pt-2">
-    <div class="field">
-      <label for="title" class="block text-sm font-medium text-slate-700"
-        >Título</label
-      >
-      <input
-        id="title"
-        class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
-        formControlName="title"
-        type="text"
-      />
-    </div>
-
-    <div class="field">
-      <label for="description" class="block text-sm font-medium text-slate-700"
-        >Descripción</label
-      >
-      <textarea
-        id="description"
-        class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
-        formControlName="description"
-        rows="2"
-      ></textarea>
-    </div>
-
-    <div class="field">
-      <label for="timeLimit" class="block text-sm font-medium text-slate-700"
-        >Tiempo Límite (min)</label
-      >
-      <p-inputNumber
-        id="timeLimit"
-        formControlName="timeLimit"
-        [showButtons]="true"
-        [min]="1"
-        styleClass="w-full"
-      />
-    </div>
-
-    <!-- Questions Builder -->
-    <div class="mt-6 space-y-4">
-      <div
-        class="flex items-center justify-between border-b border-slate-200 pb-2"
-      >
-        <h4 class="text-sm font-bold uppercase tracking-wider text-slate-800">
-          Preguntas
-        </h4>
-        <p-button
-          label="Añadir Pregunta"
-          icon="pi pi-plus"
-          size="small"
-          [text]="true"
-          (onClick)="addQuestion()"
+  @if (showEditQuiz()) {
+    <form [formGroup]="quizForm" class="space-y-4 pt-2">
+      <div class="field">
+        <label for="title" class="block text-sm font-medium text-slate-700"
+          >Título</label
+        >
+        <input
+          id="title"
+          class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+          formControlName="title"
+          type="text"
         />
       </div>
 
-      <div formArrayName="questions" class="space-y-6">
-        @for (question of questions.controls; track $index; let qIdx = $index) {
-          <div
-            [formGroupName]="qIdx"
-            class="rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm relative"
-          >
-            <button
-              type="button"
-              class="absolute top-2 right-2 text-slate-400 hover:text-red-500"
-              (click)="removeQuestion(qIdx)"
+      <div class="field">
+        <label
+          for="description"
+          class="block text-sm font-medium text-slate-700"
+          >Descripción</label
+        >
+        <textarea
+          id="description"
+          class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+          formControlName="description"
+          rows="2"
+        ></textarea>
+      </div>
+
+      <div class="field">
+        <label for="timeLimit" class="block text-sm font-medium text-slate-700"
+          >Tiempo Límite (min)</label
+        >
+        <p-inputNumber
+          id="timeLimit"
+          formControlName="timeLimit"
+          [showButtons]="true"
+          [min]="1"
+          styleClass="w-full"
+        />
+      </div>
+
+      <!-- Questions Builder -->
+      <div class="mt-6 space-y-4">
+        <div
+          class="flex items-center justify-between border-b border-slate-200 pb-2"
+        >
+          <h4 class="text-sm font-bold uppercase tracking-wider text-slate-800">
+            Preguntas
+          </h4>
+          <p-button
+            label="Añadir Pregunta"
+            icon="pi pi-plus"
+            size="small"
+            [text]="true"
+            (onClick)="addQuestion()"
+          />
+        </div>
+
+        <div formArrayName="questions" class="space-y-6">
+          @for (
+            question of questions.controls;
+            track $index;
+            let qIdx = $index
+          ) {
+            <div
+              [formGroupName]="qIdx"
+              class="rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm relative"
             >
-              <i class="pi pi-trash"></i>
-            </button>
+              <button
+                type="button"
+                class="absolute top-2 right-2 text-slate-400 hover:text-red-500"
+                (click)="removeQuestion(qIdx)"
+              >
+                <i class="pi pi-trash"></i>
+              </button>
 
-            <div class="grid gap-4">
-              <div class="field">
-                <label
-                  for="text"
-                  class="block text-xs font-bold text-slate-500 uppercase"
-                  >Texto</label
-                >
-                <input
-                  id="text"
-                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none"
-                  formControlName="text"
-                />
-              </div>
-
-              <div class="field">
-                <label
-                  for="concept"
-                  class="block text-xs font-bold text-slate-500 uppercase"
-                  >Concepto</label
-                >
-                <p-select
-                  id="concept"
-                  [options]="
-                    courseStore.selectedCourseDashboard()?.available_topics ||
-                    []
-                  "
-                  formControlName="concept_id"
-                  optionLabel="concept_id"
-                  optionValue="concept_id"
-                  placeholder="Seleccionar..."
-                  styleClass="w-full text-sm"
-                />
-              </div>
-
-              <!-- Choices -->
-              <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-slate-500 uppercase"
-                    >Opciones</span
+              <div class="grid gap-4">
+                <div class="field">
+                  <label
+                    for="text"
+                    class="block text-xs font-bold text-slate-500 uppercase"
+                    >Texto</label
                   >
-                  <p-button
-                    icon="pi pi-plus"
-                    size="small"
-                    [text]="true"
-                    (onClick)="addChoice(qIdx)"
+                  <input
+                    id="text"
+                    class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none"
+                    formControlName="text"
                   />
                 </div>
 
-                <div formArrayName="choices" class="space-y-2">
-                  @for (
-                    choice of getChoices(qIdx);
-                    track $index;
-                    let cIdx = $index
-                  ) {
-                    <div [formGroupName]="cIdx" class="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        [name]="'correct-' + qIdx"
-                        [checked]="choice.get('is_correct')?.value"
-                        (change)="setCorrectChoice(qIdx, cIdx)"
-                      />
-                      <input
-                        class="flex-1 rounded-lg border border-slate-200 px-3 py-1 text-sm"
-                        formControlName="text"
-                      />
-                      <button
-                        type="button"
-                        class="text-slate-300"
-                        (click)="removeChoice(qIdx, cIdx)"
+                <div class="field">
+                  <label
+                    for="concept"
+                    class="block text-xs font-bold text-slate-500 uppercase"
+                    >Concepto</label
+                  >
+                  <p-select
+                    id="concept"
+                    [options]="
+                      courseStore.selectedCourseDashboard()?.available_topics ||
+                      []
+                    "
+                    formControlName="concept_id"
+                    optionLabel="concept_id"
+                    optionValue="concept_id"
+                    placeholder="Seleccionar..."
+                    styleClass="w-full text-sm"
+                  />
+                </div>
+
+                <!-- Choices -->
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-500 uppercase"
+                      >Opciones</span
+                    >
+                    <p-button
+                      icon="pi pi-plus"
+                      size="small"
+                      [text]="true"
+                      (onClick)="addChoice(qIdx)"
+                    />
+                  </div>
+
+                  <div formArrayName="choices" class="space-y-2">
+                    @for (
+                      choice of getChoices(qIdx);
+                      track $index;
+                      let cIdx = $index
+                    ) {
+                      <div
+                        [formGroupName]="cIdx"
+                        class="flex items-center gap-2"
                       >
-                        <i class="pi pi-times-circle"></i>
-                      </button>
-                    </div>
-                  }
+                        <input
+                          type="radio"
+                          [name]="'correct-' + qIdx"
+                          [checked]="choice.get('is_correct')?.value"
+                          (change)="setCorrectChoice(qIdx, cIdx)"
+                        />
+                        <input
+                          class="flex-1 rounded-lg border border-slate-200 px-3 py-1 text-sm"
+                          formControlName="text"
+                        />
+                        <button
+                          type="button"
+                          class="text-slate-300"
+                          (click)="removeChoice(qIdx, cIdx)"
+                        >
+                          <i class="pi pi-times-circle"></i>
+                        </button>
+                      </div>
+                    }
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        }
+          }
+        </div>
       </div>
-    </div>
 
-    <footer class="flex justify-end gap-2 pt-6 border-t border-slate-100 mt-4">
-      <p-button
-        label="Cancelar"
-        severity="secondary"
-        [text]="true"
-        (onClick)="showEditQuiz = false"
-      />
-      <p-button
-        label="Guardar Cambios"
-        icon="pi pi-save"
-        (onClick)="saveQuiz()"
-        [disabled]="quizForm.invalid"
-      />
-    </footer>
-  </form>
+      <footer
+        class="flex justify-end gap-2 pt-6 border-t border-slate-100 mt-4"
+      >
+        <p-button
+          label="Cancelar"
+          severity="secondary"
+          [text]="true"
+          (onClick)="showEditQuiz.set(false)"
+        />
+        <p-button
+          label="Guardar Cambios"
+          icon="pi pi-save"
+          (onClick)="saveQuiz()"
+          [disabled]="quizForm.invalid"
+        />
+      </footer>
+    </form>
+  }
 </p-dialog>

@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { AppShellComponent } from './widgets/app-shell/app-shell.component';
 import { authGuard } from './shared/lib/guards/auth.guard';
 import { roleGuard } from './shared/lib/guards/role.guard';
+import { varkOnboardingGuard } from './shared/lib/guards/onboarding.guard';
 
 export const routes: Routes = [
   {
@@ -30,6 +31,7 @@ export const routes: Routes = [
           },
           {
             path: 'course/:courseId',
+            canActivate: [varkOnboardingGuard],
             loadComponent: () =>
               import('./pages/student/course-viewer-page/course-viewer-page.component').then(
                 (m) => m.CourseViewerPageComponent,
@@ -37,6 +39,15 @@ export const routes: Routes = [
           },
           {
             path: 'attempts',
+            canActivate: [varkOnboardingGuard],
+            loadComponent: () =>
+              import('./pages/student/attempts-page/student-attempts-page.component').then(
+                (m) => m.StudentAttemptsPageComponent,
+              ),
+          },
+          {
+            path: 'attempts/:attemptId',
+            canActivate: [varkOnboardingGuard],
             loadComponent: () =>
               import('./pages/student/attempts-page/student-attempts-page.component').then(
                 (m) => m.StudentAttemptsPageComponent,

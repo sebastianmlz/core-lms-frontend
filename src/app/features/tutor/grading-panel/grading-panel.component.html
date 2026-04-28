@@ -38,7 +38,11 @@
               </div>
               <div>
                 <p class="font-bold text-slate-800 text-sm">
-                  Estudiante ID: {{ sub.student }}
+                  {{
+                    sub.student.first_name || sub.student.last_name
+                      ? sub.student.first_name + ' ' + sub.student.last_name
+                      : sub.student.username
+                  }}
                 </p>
                 <p class="text-xs text-slate-500">
                   Enviado: {{ sub.submitted_at | date: 'short' }}

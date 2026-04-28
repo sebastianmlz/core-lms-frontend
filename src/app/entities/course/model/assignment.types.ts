@@ -7,10 +7,17 @@ export interface AssignmentItem {
   max_score: number;
 }
 
+export interface StudentBrief {
+  id: number;
+  username: string;
+  first_name: string;
+  last_name: string;
+}
+
 export interface SubmissionItem {
   id: number;
   assignment: number;
-  student: number;
+  student: StudentBrief;
   file: string; // URL of the uploaded file
   submitted_at: string;
   grade: number | null;

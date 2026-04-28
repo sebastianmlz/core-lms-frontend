@@ -20,6 +20,7 @@ import {
 const FLUSH_INTERVAL_MS = 5000;
 const SEVERITY_TABLE: Record<ProctoringEventType, number> = {
   tab_switched: 1.0,
+  fullscreen_exit: 1.5,
   face_not_detected: 1.5,
   multiple_faces: 2.0,
 };
@@ -51,8 +52,8 @@ interface BufferedEvent {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProctoringMonitorComponent implements OnInit, OnDestroy {
-  @Input() requireCamera: boolean = true;
-  @Input() requireFullscreen: boolean = true;
+  @Input() requireCamera = true;
+  @Input() requireFullscreen = true;
 
   @ViewChild('preview') previewVideo?: ElementRef<HTMLVideoElement>;
 
@@ -218,7 +219,7 @@ export class ProctoringMonitorComponent implements OnInit, OnDestroy {
       this.fullscreenActive.set(active);
       if (!active && this.requireFullscreen) {
         this.fullscreenWarning.set(true);
-        this.queue('tab_switched');
+        this.queue('fullscreen_exit');
       } else {
         this.fullscreenWarning.set(false);
       }

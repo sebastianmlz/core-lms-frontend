@@ -1,5 +1,6 @@
 export type ProctoringEventType =
   | 'tab_switched'
+  | 'fullscreen_exit'
   | 'face_not_detected'
   | 'multiple_faces';
 

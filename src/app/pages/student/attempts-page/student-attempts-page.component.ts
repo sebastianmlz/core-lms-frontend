@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -48,6 +48,7 @@ interface AttemptRow {
 export class StudentAttemptsPageComponent implements OnInit {
   private readonly attemptApi = inject(AttemptApiService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   readonly attempts = signal<AttemptResultResponse[]>([]);
   readonly isLoading = signal<boolean>(false);
@@ -56,6 +57,10 @@ export class StudentAttemptsPageComponent implements OnInit {
   readonly currentPage = signal<number>(1);
   readonly hasNext = signal<boolean>(false);
   readonly hasPrevious = signal<boolean>(false);
+
+  // Detail mode
+  readonly selectedAttempt = signal<AttemptResultResponse | null>(null);
+  readonly isLoadingDetail = signal<boolean>(false);
 
   readonly rows = computed<AttemptRow[]>(() =>
     this.attempts().map((a) => ({
@@ -70,7 +75,27 @@ export class StudentAttemptsPageComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    void this.load(1);
+    const attemptIdParam = this.route.snapshot.paramMap.get('attemptId');
+    if (attemptIdParam) {
+      void this.loadDetail(Number(attemptIdParam));
+    } else {
+      void this.load(1);
+    }
+  }
+
+  async loadDetail(attemptId: number): Promise<void> {
+    this.isLoadingDetail.set(true);
+    this.error.set(null);
+    try {
+      const attempt = await firstValueFrom(
+        this.attemptApi.getAttempt(attemptId),
+      );
+      this.selectedAttempt.set(attempt);
+    } catch {
+      this.error.set('No se pudo cargar el detalle del intento.');
+    } finally {
+      this.isLoadingDetail.set(false);
+    }
   }
 
   async load(page: number): Promise<void> {
@@ -91,9 +116,12 @@ export class StudentAttemptsPageComponent implements OnInit {
   }
 
   openAttempt(attemptId: number): void {
-    void this.router.navigate(['/student'], {
-      queryParams: { attemptId },
-    });
+    void this.router.navigate(['/student/attempts', attemptId]);
+  }
+
+  backToList(): void {
+    this.selectedAttempt.set(null);
+    void this.router.navigate(['/student/attempts']);
   }
 
   next(): void {
@@ -108,7 +136,7 @@ export class StudentAttemptsPageComponent implements OnInit {
     }
   }
 
-  private classifyPlan(
+  classifyPlan(
     attempt: AttemptResultResponse,
   ): 'success' | 'fallback' | 'pending' | 'none' {
     const plan = attempt.adaptive_plan;

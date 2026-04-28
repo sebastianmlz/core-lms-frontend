@@ -84,7 +84,7 @@ export class TutorCourseViewerPageComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly quizApi = inject(QuizApiService);
 
-  showEditQuiz = false;
+  readonly showEditQuiz = signal(false);
   editingQuizId: number | null = null;
 
   readonly quizForm = this.formBuilder.group({
@@ -125,7 +125,8 @@ export class TutorCourseViewerPageComponent {
         });
         this.questions.push(qForm);
       });
-      this.showEditQuiz = true;
+      this.showEditQuiz.set(false);
+      setTimeout(() => this.showEditQuiz.set(true), 0);
     } catch (err) {
       console.error('Error loading quiz detail', err);
     }
@@ -192,7 +193,7 @@ export class TutorCourseViewerPageComponent {
     try {
       await firstValueFrom(this.quizApi.createQuiz(payload)); // Reuse create for simplicity if update is similar or implement update
       // Actually QuizViewSet supports PUT/PATCH.
-      this.showEditQuiz = false;
+      this.showEditQuiz.set(false);
       void this.courseStore.loadCourseQuizzes(courseId);
     } catch (err) {
       console.error('Error saving quiz', err);

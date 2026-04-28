@@ -282,7 +282,8 @@ export class TutorAcademicPageComponent implements OnInit {
         });
         break;
     }
-    this.dialogOpen.set(true);
+    this.dialogOpen.set(false);
+    setTimeout(() => this.dialogOpen.set(true), 0);
   }
 
   openEdit(kind: EntityKind, item: Record<string, unknown>): void {
@@ -331,7 +332,8 @@ export class TutorAcademicPageComponent implements OnInit {
         });
         break;
     }
-    this.dialogOpen.set(true);
+    this.dialogOpen.set(false);
+    setTimeout(() => this.dialogOpen.set(true), 0);
   }
 
   // ── Save ────────────────────────────────────────────────────────
@@ -542,7 +544,10 @@ export class TutorAcademicPageComponent implements OnInit {
           this.toast.error('Sesión expirada', 'Vuelve a iniciar sesión.');
           return;
         case 403:
-          this.toast.error('Permiso denegado', 'Esta acción es solo para tutores.');
+          this.toast.error(
+            'Permiso denegado',
+            'Esta acción es solo para tutores.',
+          );
           return;
         case 404:
           this.toast.error('No encontrado', 'El registro ya no existe.');

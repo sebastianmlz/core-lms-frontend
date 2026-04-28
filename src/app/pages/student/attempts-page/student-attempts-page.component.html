@@ -11,7 +11,122 @@
     </p>
   </header>
 
-  @if (isLoading()) {
+  <!-- ── Detail Mode ── -->
+  @if (selectedAttempt(); as attempt) {
+    <div class="space-y-4">
+      <p-button
+        label="Volver al listado"
+        icon="pi pi-arrow-left"
+        severity="secondary"
+        size="small"
+        (onClick)="backToList()"
+      ></p-button>
+
+      <div
+        class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 space-y-4"
+      >
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold text-slate-800">
+            Intento #{{ attempt.id }}
+          </h2>
+          @if (attempt.is_submitted) {
+            <p-tag value="Enviado" severity="success"></p-tag>
+          } @else {
+            <p-tag value="En curso" severity="warn"></p-tag>
+          }
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div>
+            <p class="text-xs text-slate-500 font-semibold uppercase">
+              Quiz ID
+            </p>
+            <p class="font-bold text-slate-800">{{ attempt.quiz }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-slate-500 font-semibold uppercase">Inicio</p>
+            <p class="font-bold text-slate-800">
+              {{ attempt.start_time | date: 'medium' }}
+            </p>
+          </div>
+          <div>
+            <p class="text-xs text-slate-500 font-semibold uppercase">Fin</p>
+            <p class="font-bold text-slate-800">
+              {{ attempt.end_time ? (attempt.end_time | date: 'medium') : '—' }}
+            </p>
+          </div>
+          <div>
+            <p class="text-xs text-slate-500 font-semibold uppercase">Score</p>
+            <p class="text-2xl font-black text-indigo-600">
+              {{ attempt.final_score ?? '—' }}
+            </p>
+          </div>
+        </div>
+
+        @if (attempt.score !== undefined && attempt.max_score !== undefined) {
+          <div class="rounded-xl bg-indigo-50 border border-indigo-200 p-4">
+            <p class="text-sm text-indigo-800">
+              <span class="font-bold">Puntaje:</span>
+              {{ attempt.score }} / {{ attempt.max_score }}
+            </p>
+          </div>
+        }
+
+        @if (attempt.failed_concepts && attempt.failed_concepts.length > 0) {
+          <div>
+            <h3 class="text-sm font-bold text-slate-700 mb-2">
+              Conceptos Fallidos
+            </h3>
+            <div class="flex flex-wrap gap-2">
+              @for (concept of attempt.failed_concepts; track concept) {
+                <p-tag [value]="concept" severity="danger"></p-tag>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Adaptive Plan -->
+        @if (attempt.adaptive_plan) {
+          <div
+            class="rounded-xl bg-teal-50 border border-teal-200 p-4 space-y-2"
+          >
+            <h3 class="text-sm font-bold text-teal-800">Plan Adaptativo IA</h3>
+            @switch (classifyPlan(attempt)) {
+              @case ('success') {
+                <p-tag value="Plan Generado" severity="success"></p-tag>
+              }
+              @case ('fallback') {
+                <p-tag value="Plan Fallback" severity="warn"></p-tag>
+              }
+              @case ('pending') {
+                <p-tag value="Procesando..." severity="info"></p-tag>
+              }
+              @default {
+                <p-tag value="Sin plan" severity="secondary"></p-tag>
+              }
+            }
+          </div>
+        }
+
+        @if (attempt.axiom_error) {
+          <div class="rounded-xl bg-red-50 border border-red-200 p-4">
+            <p class="text-sm text-red-800 font-semibold">
+              Error del motor IA: {{ attempt.axiom_error.error }}
+            </p>
+            @if (attempt.axiom_error.details) {
+              <p class="text-xs text-red-600 mt-1">
+                {{ attempt.axiom_error.details }}
+              </p>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  } @else if (isLoadingDetail()) {
+    <div class="flex items-center justify-center p-10">
+      <p-progressSpinner></p-progressSpinner>
+    </div>
+  } @else if (isLoading()) {
     <div class="flex items-center justify-center p-10">
       <p-progressSpinner></p-progressSpinner>
     </div>

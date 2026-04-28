@@ -60,7 +60,9 @@ export const CourseStore = signalStore(
       selectCourse(courseId: number): void {
         patchState(store, {
           selectedCourseId: courseId,
+          selectedCourseDetail: null,
           selectedCourseDashboard: null,
+          selectedCourseQuizzes: [],
           dashboardError: null,
         });
       },

@@ -113,10 +113,8 @@ export class CourseViewerPageComponent {
         await this.proctoringMonitor.stop();
       }
       this.selectedQuizId.set(null);
-      // Al terminar el quiz, redirigimos al dashboard para ver el resultado y la ruta
-      void this.router.navigate(['/student'], {
-        queryParams: { attemptId: attempt.id },
-      });
+      // Al terminar el quiz, redirigimos al detalle del intento
+      void this.router.navigate(['/student/attempts', attempt.id]);
     } catch (err) {
       console.error('Error submitting quiz', err);
     }

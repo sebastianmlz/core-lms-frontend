@@ -43,16 +43,30 @@
           for="quizId"
         >
           <span>Elige un Quiz</span>
-          <p-select
-            id="quizId"
-            formControlName="quizId"
-            [options]="filteredQuizzes()"
-            optionLabel="title"
-            optionValue="id"
-            placeholder="Selecciona un Quiz..."
-            class="w-full"
-            [loading]="quizStore.isLoadingQuizzes()"
-          />
+          @if (
+            filteredQuizzes().length === 0 &&
+            !quizStore.isLoadingQuizzes() &&
+            courseStore.selectedCourseId()
+          ) {
+            <div
+              class="rounded-lg border border-slate-200 bg-slate-50 p-4 text-center"
+            >
+              <p class="text-sm font-medium text-slate-600">
+                No hay quizzes disponibles para este curso
+              </p>
+            </div>
+          } @else {
+            <p-select
+              id="quizId"
+              formControlName="quizId"
+              [options]="filteredQuizzes()"
+              optionLabel="title"
+              optionValue="id"
+              placeholder="Selecciona un Quiz..."
+              class="w-full"
+              [loading]="quizStore.isLoadingQuizzes()"
+            />
+          }
         </label>
 
         @if (quizStore.isLoadingQuizzes()) {
@@ -88,10 +102,21 @@
         }
 
         <p-button
-          label="Comenzar Evaluación"
+          [label]="
+            filteredQuizzes().length === 0 &&
+            !quizStore.isLoadingQuizzes() &&
+            courseStore.selectedCourseId()
+              ? 'No hay quizzes'
+              : 'Comenzar Evaluación'
+          "
           icon="pi pi-play"
           type="submit"
-          [disabled]="!quizStore.selectedQuizDetail()"
+          [disabled]="
+            !quizStore.selectedQuizDetail() ||
+            (filteredQuizzes().length === 0 &&
+              !quizStore.isLoadingQuizzes() &&
+              courseStore.selectedCourseId())
+          "
           class="w-full"
         />
       </form>

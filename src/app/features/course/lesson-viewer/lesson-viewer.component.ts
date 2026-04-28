@@ -2,6 +2,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   Input,
+  Output,
+  EventEmitter,
   computed,
   inject,
   signal,
@@ -30,9 +32,12 @@ import { firstValueFrom } from 'rxjs';
 })
 export class LessonViewerComponent implements OnChanges {
   @Input({ required: true }) lesson!: LessonItem;
+  @Output() openGrading = new EventEmitter<void>();
 
   private readonly assignmentApi = inject(AssignmentApiService);
   private readonly sessionStore = inject(SessionStore) as SessionStoreType;
+
+  readonly activeRole = computed(() => this.sessionStore.activeRole());
 
   readonly hasVideo = computed(
     () =>
@@ -51,6 +56,7 @@ export class LessonViewerComponent implements OnChanges {
   // Assignment & Submissions state
   readonly assignment = signal<AssignmentItem | null>(null);
   readonly submission = signal<SubmissionItem | null>(null);
+  readonly totalSubmissions = signal<number>(0);
   readonly isUploading = signal(false);
   readonly uploadError = signal<string | null>(null);
 
@@ -58,6 +64,7 @@ export class LessonViewerComponent implements OnChanges {
     if (changes['lesson'] && this.lesson?.id) {
       this.assignment.set(null);
       this.submission.set(null);
+      this.totalSubmissions.set(0);
       void this.loadAssignmentData(this.lesson.id);
     }
   }
@@ -71,12 +78,16 @@ export class LessonViewerComponent implements OnChanges {
         const activeAssignment = assignments[0];
         this.assignment.set(activeAssignment);
 
-        // Verifica si el estudiante ya entregó esta tarea
+        // Verifica las entregas dependiendo del rol
         const submissions = await firstValueFrom(
           this.assignmentApi.getSubmissionsByAssignment(activeAssignment.id),
         );
         if (submissions && submissions.length > 0) {
-          this.submission.set(submissions[0]);
+          if (this.activeRole() === 'TUTOR') {
+            this.totalSubmissions.set(submissions.length);
+          } else {
+            this.submission.set(submissions[0]);
+          }
         }
       }
     } catch {

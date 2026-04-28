@@ -27,6 +27,7 @@ import {
 import { QuizApiService } from '../../../entities/assessment/api/quiz.api';
 import { LessonItem } from '../../../entities/course/model/course.types';
 import { GradingPanelComponent } from '../../../features/tutor/grading-panel/grading-panel.component';
+import { LessonViewerComponent } from '../../../features/course/lesson-viewer/lesson-viewer.component';
 
 @Component({
   selector: 'app-tutor-course-viewer-page',
@@ -39,6 +40,7 @@ import { GradingPanelComponent } from '../../../features/tutor/grading-panel/gra
     InputNumberModule,
     ProgressBarModule,
     GradingPanelComponent,
+    LessonViewerComponent,
   ],
   templateUrl: './course-viewer-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,6 +51,7 @@ export class TutorCourseViewerPageComponent {
   readonly courseStore = inject(CourseStore) as CourseStoreType;
 
   readonly selectedLesson = signal<LessonItem | null>(null);
+  readonly showGradingPanel = signal(false);
 
   readonly courseName = computed(
     () => this.courseStore.selectedCourseDetail()?.name ?? 'Cargando curso...',
@@ -74,6 +77,7 @@ export class TutorCourseViewerPageComponent {
   }
 
   selectLesson(lesson: LessonItem): void {
+    this.showGradingPanel.set(false);
     this.selectedLesson.set(lesson);
   }
 

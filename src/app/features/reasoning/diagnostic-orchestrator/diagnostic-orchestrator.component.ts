@@ -132,7 +132,7 @@ export class DiagnosticOrchestratorComponent {
     effect(() => {
       const courseId = this.courseStore.selectedCourseId();
       if (courseId) {
-        this.form.controls.quizId.setValue(null);
+        this.form.controls.quizId.reset();
       }
     });
 

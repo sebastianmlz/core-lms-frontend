@@ -149,8 +149,24 @@
     <!-- Main Content Area -->
     <main class="flex-1 overflow-y-auto p-8 bg-slate-50">
       @if (selectedLesson(); as lesson) {
-        <!-- Grading Panel for the selected lesson -->
-        <app-grading-panel [lesson]="lesson"></app-grading-panel>
+        @if (showGradingPanel()) {
+          <div class="mb-6 flex items-center justify-between">
+            <p-button
+              label="Volver a la Lección"
+              icon="pi pi-arrow-left"
+              severity="secondary"
+              [text]="true"
+              (onClick)="showGradingPanel.set(false)"
+            ></p-button>
+          </div>
+          <!-- Grading Panel for the selected lesson -->
+          <app-grading-panel [lesson]="lesson"></app-grading-panel>
+        } @else {
+          <app-lesson-viewer
+            [lesson]="lesson"
+            (openGrading)="showGradingPanel.set(true)"
+          ></app-lesson-viewer>
+        }
       } @else {
         <!-- Analytics Dashboard (Default View) -->
         @if (courseStore.isLoadingDashboard()) {

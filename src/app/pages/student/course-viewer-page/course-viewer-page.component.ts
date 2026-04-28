@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ViewChild,
   computed,
   inject,
   signal,
@@ -31,6 +32,7 @@ import {
   SessionStore,
   SessionStoreType,
 } from '../../../entities/session/model/session.store';
+import { ProctoringMonitorComponent } from '../../../features/proctoring/proctoring-monitor.component';
 
 @Component({
   selector: 'app-course-viewer-page',
@@ -40,11 +42,15 @@ import {
     SkeletonModule,
     LessonViewerComponent,
     QuizPlayerComponent,
+    ProctoringMonitorComponent,
   ],
   templateUrl: './course-viewer-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CourseViewerPageComponent {
+  @ViewChild(ProctoringMonitorComponent)
+  proctoringMonitor?: ProctoringMonitorComponent;
+
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   readonly courseStore = inject(CourseStore) as CourseStoreType;
@@ -100,6 +106,12 @@ export class CourseViewerPageComponent {
           answers,
         }),
       );
+      // Sella los eventos de proctoring buffered con el attempt.id real
+      // y dispara el flush bulk antes de cerrar el monitor.
+      if (this.proctoringMonitor) {
+        await this.proctoringMonitor.finalize(attempt.id);
+        await this.proctoringMonitor.stop();
+      }
       this.selectedQuizId.set(null);
       // Al terminar el quiz, redirigimos al dashboard para ver el resultado y la ruta
       void this.router.navigate(['/student'], {
@@ -110,7 +122,10 @@ export class CourseViewerPageComponent {
     }
   }
 
-  onQuizCancelled(): void {
+  async onQuizCancelled(): Promise<void> {
+    if (this.proctoringMonitor) {
+      await this.proctoringMonitor.stop();
+    }
     this.selectedQuizId.set(null);
   }
 

@@ -1,69 +1,130 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { TreeTableModule } from 'primeng/treetable';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  Input,
+  OnDestroy,
+  OnChanges,
+  SimpleChanges,
+  ViewChild,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { SkeletonModule } from 'primeng/skeleton';
-import { TreeNode } from 'primeng/api';
+import cytoscape, { Core, ElementDefinition } from 'cytoscape';
 import { CognitiveGraphResponse } from '../../../entities/reasoning/model/reasoning.types';
 
 /**
- * CognitiveShadowComponent — Pure presentation component.
- * Renders the cognitive shadow graph as a p-treeTable.
- * Converts flat graph (nodes + edges) → TreeNode[] hierarchy internally.
- * Has zero store dependencies; fully reusable in student and tutor contexts.
+ * CognitiveShadowComponent — renders the cognitive shadow graph as a
+ * directed graph using Cytoscape.js. Nodes are colored by status
+ * (failed = red, learning = amber, mastered = green) and edges show
+ * the prerequisite relations from the Go reasoning service.
  */
 @Component({
   selector: 'app-cognitive-shadow',
-  imports: [TreeTableModule, SkeletonModule],
+  imports: [CommonModule, SkeletonModule],
   templateUrl: './cognitive-shadow.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CognitiveShadowComponent {
-  private _graph: CognitiveGraphResponse | null = null;
-
-  @Input() set graph(value: CognitiveGraphResponse | null) {
-    this._graph = value;
-    this._treeNodes = this.buildTree(value);
-  }
-  get graph(): CognitiveGraphResponse | null {
-    return this._graph;
-  }
-
+export class CognitiveShadowComponent
+  implements AfterViewInit, OnChanges, OnDestroy
+{
+  @Input() graph: CognitiveGraphResponse | null = null;
   @Input() isLoading = false;
 
-  _treeNodes: TreeNode[] = [];
+  @ViewChild('cyHost', { static: false })
+  cyHost?: ElementRef<HTMLDivElement>;
 
-  readonly skeletonRows = [1, 2, 3, 4];
+  private cy: Core | null = null;
+  private viewReady = false;
 
-  private buildTree(graph: CognitiveGraphResponse | null): TreeNode[] {
-    if (!graph) return [];
+  ngAfterViewInit(): void {
+    this.viewReady = true;
+    this.render();
+  }
 
-    const nodeMap = new Map<string, TreeNode>();
-    graph.nodes.forEach((n) => {
-      nodeMap.set(n.id, {
-        data: { id: n.id, name: n.label, cognitive_state: n.cognitive_state },
-        expanded: true,
-        children: [],
-      });
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['graph'] && this.viewReady) {
+      this.render();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.cy?.destroy();
+    this.cy = null;
+  }
+
+  private render(): void {
+    if (!this.cyHost || !this.graph) {
+      return;
+    }
+    const elements: ElementDefinition[] = [
+      ...this.graph.nodes.map((n) => ({
+        data: {
+          id: n.id,
+          label: n.label,
+          status: n.cognitive_state,
+        },
+      })),
+      ...this.graph.edges.map((e, idx) => ({
+        data: {
+          id: `e${idx}-${e.source}->${e.target}`,
+          source: e.source,
+          target: e.target,
+          relation: e.relation,
+        },
+      })),
+    ];
+
+    if (this.cy) {
+      this.cy.destroy();
+    }
+
+    this.cy = cytoscape({
+      container: this.cyHost.nativeElement,
+      elements,
+      style: [
+        {
+          selector: 'node',
+          style: {
+            label: 'data(label)',
+            'text-valign': 'center',
+            'text-halign': 'center',
+            color: '#fff',
+            'font-size': '11px',
+            'font-weight': 'bold',
+            width: 78,
+            height: 78,
+            'text-wrap': 'wrap',
+            'text-max-width': '70px',
+            'border-width': 2,
+            'border-color': '#fff',
+          },
+        },
+        {
+          selector: 'node[status = "failed"]',
+          style: { 'background-color': '#dc2626' }, // rose-600
+        },
+        {
+          selector: 'node[status = "learning"]',
+          style: { 'background-color': '#f59e0b' }, // amber-500
+        },
+        {
+          selector: 'node[status = "mastered"]',
+          style: { 'background-color': '#10b981' }, // emerald-500
+        },
+        {
+          selector: 'edge',
+          style: {
+            width: 2,
+            'line-color': '#94a3b8',
+            'target-arrow-color': '#94a3b8',
+            'target-arrow-shape': 'triangle',
+            'curve-style': 'bezier',
+          },
+        },
+      ],
+      layout: { name: 'breadthfirst', directed: true, padding: 16 },
     });
-
-    const childIds = new Set<string>();
-    graph.edges.forEach((edge) => {
-      const parent = nodeMap.get(edge.target);
-      const child = nodeMap.get(edge.source);
-      if (parent && child) {
-        parent.children = parent.children ?? [];
-        parent.children.push(child);
-        childIds.add(edge.source);
-      }
-    });
-
-    const roots: TreeNode[] = [];
-    graph.nodes.forEach((n) => {
-      if (!childIds.has(n.id)) {
-        const root = nodeMap.get(n.id);
-        if (root) roots.push(root);
-      }
-    });
-
-    return roots.length > 0 ? roots : Array.from(nodeMap.values());
   }
 }

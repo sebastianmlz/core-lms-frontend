@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AxiomApiClient } from '../../../shared/api/axiom-api.client';
+import { DjangoApiClient } from '../../../shared/api/django-api.client';
 import { backendToAxiomVark } from '../../../shared/lib/vark/vark.utils';
 import {
   AdaptivePlanInput,
@@ -23,6 +24,7 @@ interface AdaptivePlanRequest {
 @Injectable({ providedIn: 'root' })
 export class ReasoningApiService {
   private readonly axiomApi = inject(AxiomApiClient);
+  private readonly djangoApi = inject(DjangoApiClient);
 
   generateAdaptivePlan(
     input: AdaptivePlanInput,
@@ -45,15 +47,23 @@ export class ReasoningApiService {
     );
   }
 
+  /**
+   * Fetches the cognitive shadow graph through the Django proxy
+   * (`/api/v1/cognitive-graph/graph/`). The proxy enforces JWT + IsTutor
+   * before forwarding to the Go reasoning service with a shared-secret
+   * header, so the Go endpoint is no longer reachable from the browser
+   * even if its host leaks.
+   */
   getCognitiveGraph(
     studentId: string,
     topics: string[],
     targetTopic?: string,
   ): Observable<CognitiveGraphResponse> {
-    return this.axiomApi.get<CognitiveGraphResponse>(
-      `/api/v1/tutor/student/${studentId}/cognitive-graph`,
+    return this.djangoApi.get<CognitiveGraphResponse>(
+      '/api/v1/cognitive-graph/graph/',
       {
         params: {
+          student_id: studentId,
           topics: topics.join(','),
           target_topic: targetTopic,
         },

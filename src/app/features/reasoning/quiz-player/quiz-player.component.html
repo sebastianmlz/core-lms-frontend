@@ -3,9 +3,23 @@
   <header class="flex flex-col gap-2">
     <div class="flex items-center justify-between">
       <h3 class="text-base font-semibold text-blue-900">{{ quiz.title }}</h3>
-      <span class="text-xs font-semibold text-blue-700">
-        {{ answeredCount }} / {{ totalQuestions }} respondidas
-      </span>
+      <div class="flex items-center gap-3">
+        @if (remainingSeconds() !== null) {
+          <span
+            class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold tabular-nums"
+            [class.bg-rose-100]="timeWarning()"
+            [class.text-rose-800]="timeWarning()"
+            [class.bg-blue-100]="!timeWarning()"
+            [class.text-blue-800]="!timeWarning()"
+          >
+            <i class="pi pi-clock"></i>
+            {{ timeDisplay }}
+          </span>
+        }
+        <span class="text-xs font-semibold text-blue-700">
+          {{ answeredCount }} / {{ totalQuestions }} respondidas
+        </span>
+      </div>
     </div>
     @if (quiz.description) {
       <p class="text-sm text-blue-800">{{ quiz.description }}</p>

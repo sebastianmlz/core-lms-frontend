@@ -48,6 +48,7 @@ function writeStorageValue(key: string, value: string | null): void {
 function parseDetailsFromToken(accessToken: string): {
   role: UserRole | null;
   userId: number | null;
+  varkDominant: string | null;
 } {
   const payload = extractJwtPayload(accessToken);
   const role =
@@ -56,8 +57,11 @@ function parseDetailsFromToken(accessToken: string): {
       : null;
   const userId =
     typeof payload?.['user_id'] === 'number' ? payload['user_id'] : null;
+  const rawVark = payload?.['vark_dominant'];
+  const varkDominant =
+    typeof rawVark === 'string' && rawVark.length > 0 ? rawVark : null;
 
-  return { role, userId };
+  return { role, userId, varkDominant };
 }
 
 export const SessionStore = signalStore(
@@ -96,8 +100,15 @@ export const SessionStore = signalStore(
 
           const parsedDetails = parseDetailsFromToken(response.access);
           const activeRole =
-            response.role ?? parsedDetails.role ?? credentials.preferredRole;
-          const userId = parsedDetails.userId;
+            response.user?.role ??
+            response.role ??
+            parsedDetails.role ??
+            credentials.preferredRole;
+          const userId =
+            response.user?.id ?? response.user_id ?? parsedDetails.userId;
+          const dominantVark =
+            response.user?.vark_dominant ?? parsedDetails.varkDominant ?? null;
+          const username = response.user?.username ?? credentials.username;
 
           writeStorageValue(SESSION_STORAGE_KEYS.accessToken, response.access);
           writeStorageValue(
@@ -105,21 +116,20 @@ export const SessionStore = signalStore(
             response.refresh,
           );
           writeStorageValue(SESSION_STORAGE_KEYS.activeRole, activeRole);
-          writeStorageValue(
-            SESSION_STORAGE_KEYS.username,
-            credentials.username,
-          );
+          writeStorageValue(SESSION_STORAGE_KEYS.username, username);
           writeStorageValue(
             SESSION_STORAGE_KEYS.userId,
             userId ? userId.toString() : null,
           );
+          writeStorageValue(SESSION_STORAGE_KEYS.dominantVark, dominantVark);
 
           patchState(store, {
             accessToken: response.access,
             refreshToken: response.refresh,
             activeRole,
-            username: credentials.username,
+            username,
             userId,
+            dominantVark,
             isLoading: false,
             error: null,
           });

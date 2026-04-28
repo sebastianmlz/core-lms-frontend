@@ -43,6 +43,34 @@
       </div>
 
       <div class="flex-1 flex items-center justify-end gap-3">
+        @if (sessionStore.activeRole() === 'STUDENT') {
+          <a
+            routerLink="/student/attempts"
+            routerLinkActive="text-teal-600"
+            class="hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-full text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-teal-700 transition-colors"
+          >
+            <i class="pi pi-history"></i>
+            Mis Intentos
+          </a>
+        }
+        @if (sessionStore.activeRole() === 'TUTOR') {
+          <a
+            routerLink="/tutor/academic"
+            routerLinkActive="text-teal-600"
+            class="hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-full text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-teal-700 transition-colors"
+          >
+            <i class="pi pi-graduation-cap"></i>
+            Jerarquía Académica
+          </a>
+          <a
+            routerLink="/tutor/admin"
+            routerLinkActive="text-teal-600"
+            class="hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-full text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-teal-700 transition-colors"
+          >
+            <i class="pi pi-cog"></i>
+            Administración
+          </a>
+        }
         <p-button
           label="Salir"
           severity="danger"

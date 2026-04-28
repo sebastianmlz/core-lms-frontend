@@ -1,0 +1,329 @@
+<section class="space-y-6 animate-fadein pb-10">
+  <header
+    class="rounded-3xl bg-gradient-to-br from-emerald-900 via-teal-800 to-sky-800 p-6 md:p-8 text-white shadow-xl"
+  >
+    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">
+      Administración del Tutor
+    </h1>
+    <p class="mt-2 text-sm text-teal-100 max-w-3xl">
+      Crea y administra asignaciones y recursos. Para gestionar carreras,
+      semestres, módulos y lecciones todavía debes usar el panel admin del
+      backend (en una próxima iteración estará disponible aquí).
+    </p>
+  </header>
+
+  <p-tabs value="0">
+    <p-tablist>
+      <p-tab value="0">
+        <i class="pi pi-file-edit mr-2"></i>
+        Asignaciones
+      </p-tab>
+      <p-tab value="1">
+        <i class="pi pi-folder mr-2"></i>
+        Recursos
+      </p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+      <!-- ────────── Asignaciones ────────── -->
+      <p-tabpanel value="0">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-slate-800">Asignaciones</h2>
+          <p-button
+            icon="pi pi-plus"
+            label="Nueva asignación"
+            severity="success"
+            size="small"
+            (onClick)="openAssignmentDialog()"
+          ></p-button>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <p-table
+            [value]="assignments()"
+            styleClass="p-datatable-sm"
+            emptyMessage="Sin asignaciones aún."
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th>ID</th>
+                <th>Lección</th>
+                <th>Título</th>
+                <th>Vence</th>
+                <th>Score máx</th>
+                <th></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-row>
+              <tr>
+                <td class="font-mono text-xs">{{ row.id }}</td>
+                <td>{{ row.lesson }}</td>
+                <td class="font-semibold">{{ row.title }}</td>
+                <td>
+                  {{ row.due_date ? (row.due_date | date: 'short') : '—' }}
+                </td>
+                <td>{{ row.max_score }}</td>
+                <td class="flex gap-2">
+                  <p-button
+                    icon="pi pi-pencil"
+                    severity="secondary"
+                    size="small"
+                    (onClick)="editAssignment(row)"
+                  ></p-button>
+                  <p-button
+                    icon="pi pi-trash"
+                    severity="danger"
+                    size="small"
+                    (onClick)="deleteAssignment(row)"
+                  ></p-button>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </p-tabpanel>
+
+      <!-- ────────── Recursos ────────── -->
+      <p-tabpanel value="1">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-slate-800">Recursos</h2>
+          <p-button
+            icon="pi pi-upload"
+            label="Subir recurso"
+            severity="success"
+            size="small"
+            (onClick)="openResourceDialog()"
+          ></p-button>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <p-table
+            [value]="resources()"
+            styleClass="p-datatable-sm"
+            emptyMessage="Sin recursos aún."
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th>ID</th>
+                <th>Lección</th>
+                <th>Título</th>
+                <th>Tipo</th>
+                <th>Archivo</th>
+                <th>Subido</th>
+                <th></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-row>
+              <tr>
+                <td class="font-mono text-xs">{{ row.id }}</td>
+                <td>{{ row.lesson }}</td>
+                <td class="font-semibold">{{ row.title }}</td>
+                <td>
+                  <p-tag [value]="row.resource_type" severity="info"></p-tag>
+                </td>
+                <td>
+                  <a
+                    [href]="row.file"
+                    target="_blank"
+                    rel="noopener"
+                    class="text-teal-700 underline"
+                  >
+                    Abrir
+                  </a>
+                </td>
+                <td>{{ row.created_at | date: 'short' }}</td>
+                <td>
+                  <p-button
+                    icon="pi pi-trash"
+                    severity="danger"
+                    size="small"
+                    (onClick)="deleteResource(row)"
+                  ></p-button>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</section>
+
+<!-- ─────────── Dialog Asignación ─────────── -->
+<p-dialog
+  header="Asignación"
+  [modal]="true"
+  [(visible)]="assignmentDialogOpen"
+  [style]="{ width: '38rem' }"
+  [closable]="!isSavingAssignment()"
+>
+  <form [formGroup]="assignmentForm" class="flex flex-col gap-4">
+    <div class="flex flex-col gap-2">
+      <label class="text-xs font-bold uppercase text-slate-600">Curso</label>
+      <p-select
+        [options]="courseStore.courses() ?? []"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Selecciona un curso"
+        appendTo="body"
+        (onChange)="onSelectCourse($event.value)"
+      ></p-select>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label class="text-xs font-bold uppercase text-slate-600">Lección</label>
+      <p-select
+        formControlName="lesson"
+        [options]="lessons()"
+        optionLabel="title"
+        optionValue="id"
+        placeholder="Selecciona una lección"
+        appendTo="body"
+      ></p-select>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label class="text-xs font-bold uppercase text-slate-600">Título</label>
+      <input
+        pInputText
+        formControlName="title"
+        placeholder="Implementar herencia OOP"
+      />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label class="text-xs font-bold uppercase text-slate-600">
+        Descripción
+      </label>
+      <textarea
+        pTextarea
+        formControlName="description"
+        rows="3"
+        placeholder="Detalle del entregable…"
+      ></textarea>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div class="flex flex-col gap-2">
+        <label class="text-xs font-bold uppercase text-slate-600">
+          Fecha límite
+        </label>
+        <p-datepicker
+          formControlName="due_date"
+          [showIcon]="true"
+          appendTo="body"
+        ></p-datepicker>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-xs font-bold uppercase text-slate-600">
+          Score máx
+        </label>
+        <p-inputnumber
+          formControlName="max_score"
+          [min]="1"
+          [max]="1000"
+        ></p-inputnumber>
+      </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancelar"
+      severity="secondary"
+      [disabled]="isSavingAssignment()"
+      (onClick)="assignmentDialogOpen.set(false)"
+    ></p-button>
+    <p-button
+      label="Guardar"
+      icon="pi pi-save"
+      severity="success"
+      [loading]="isSavingAssignment()"
+      [disabled]="assignmentForm.invalid"
+      (onClick)="saveAssignment()"
+    ></p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- ─────────── Dialog Recurso ─────────── -->
+<p-dialog
+  header="Subir recurso"
+  [modal]="true"
+  [(visible)]="resourceDialogOpen"
+  [style]="{ width: '34rem' }"
+  [closable]="!isUploadingResource()"
+>
+  <form [formGroup]="resourceForm" class="flex flex-col gap-4">
+    <div class="flex flex-col gap-2">
+      <label class="text-xs font-bold uppercase text-slate-600">Curso</label>
+      <p-select
+        [options]="courseStore.courses() ?? []"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Selecciona un curso"
+        appendTo="body"
+        (onChange)="onSelectCourse($event.value)"
+      ></p-select>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label class="text-xs font-bold uppercase text-slate-600">Lección</label>
+      <p-select
+        formControlName="lesson"
+        [options]="lessons()"
+        optionLabel="title"
+        optionValue="id"
+        placeholder="Selecciona una lección"
+        appendTo="body"
+      ></p-select>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label class="text-xs font-bold uppercase text-slate-600">Título</label>
+      <input
+        pInputText
+        formControlName="title"
+        placeholder="Lecture - Introducción a OOP"
+      />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label class="text-xs font-bold uppercase text-slate-600">Tipo</label>
+      <p-select
+        formControlName="type"
+        [options]="resourceTypes"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+      ></p-select>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label class="text-xs font-bold uppercase text-slate-600">Archivo</label>
+      <input type="file" (change)="onFileSelected($event)" />
+      @if (selectedFile) {
+        <p class="text-xs text-slate-500">
+          Seleccionado: <strong>{{ selectedFile.name }}</strong>
+        </p>
+      }
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancelar"
+      severity="secondary"
+      [disabled]="isUploadingResource()"
+      (onClick)="resourceDialogOpen.set(false)"
+    ></p-button>
+    <p-button
+      label="Subir"
+      icon="pi pi-upload"
+      severity="success"
+      [loading]="isUploadingResource()"
+      [disabled]="resourceForm.invalid || !selectedFile"
+      (onClick)="uploadResource()"
+    ></p-button>
+  </ng-template>
+</p-dialog>

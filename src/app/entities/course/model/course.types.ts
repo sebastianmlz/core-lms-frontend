@@ -1,11 +1,13 @@
 import { QuizListResponse } from '../../assessment/model/quiz.types';
 
+export type ResourceType = 'PDF' | 'VIDEO' | 'DOCUMENT' | 'IMAGE' | 'OTHER';
+
 export interface ResourceItem {
   id: number;
   lesson: number;
   uploaded_by: number | null;
   file: string;
-  resource_type: 'PDF' | 'VIDEO' | 'DOCUMENT' | 'IMAGE' | 'OTHER';
+  resource_type: ResourceType;
   title: string;
   created_at: string;
 }

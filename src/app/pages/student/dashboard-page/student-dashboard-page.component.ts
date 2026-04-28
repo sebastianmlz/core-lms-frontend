@@ -37,12 +37,14 @@ export class StudentDashboardPageComponent {
     () => this.courseStore.courses()?.length || 0,
   );
 
-  // Leemos desde el SessionStore permanentemente. Si es null mostramos "Pendiente"
+  // Leemos desde el SessionStore permanentemente. Si es null mostramos "Pendiente".
+  // Soporta ambas convenciones: backend ('aural') y axiom ('auditory').
   readonly dominantProfile = computed(() => {
     const vark = this.sessionStore.dominantVark();
     if (!vark) return 'Evaluando...';
     const spanishMap: Record<string, string> = {
       visual: 'Visual',
+      aural: 'Auditivo',
       auditory: 'Auditivo',
       read_write: 'Lecto-Escritura',
       kinesthetic: 'Kinestésico',

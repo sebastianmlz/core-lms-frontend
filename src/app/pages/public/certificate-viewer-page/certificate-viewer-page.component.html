@@ -11,6 +11,7 @@
   } @else if (certificateStore.verifiedCertificate(); as cert) {
     <!-- Certificate Container -->
     <div
+      #certificateContainer
       class="w-full max-w-5xl bg-white shadow-2xl relative overflow-hidden print:shadow-none print:w-[100vw] print:max-w-none print:h-[100vh] print:m-0"
       style="aspect-ratio: 1.414 / 1"
     >
@@ -128,6 +129,20 @@
             </p>
           </div>
         </div>
+
+        <!-- Verification hash (visible on page + PDF capture) -->
+        <div class="mt-6 text-center">
+          <p
+            class="text-[10px] font-bold uppercase tracking-widest text-slate-500"
+          >
+            Hash de verificación
+          </p>
+          <p
+            class="text-xs font-mono text-slate-700 break-all max-w-3xl mx-auto"
+          >
+            {{ cert.hash }}
+          </p>
+        </div>
       </div>
     </div>
 
@@ -142,10 +157,18 @@
       ></p-button>
       <p-button
         icon="pi pi-print"
-        label="Imprimir / PDF"
-        severity="success"
+        label="Imprimir"
+        severity="secondary"
         [rounded]="true"
         (onClick)="printCertificate()"
+      ></p-button>
+      <p-button
+        icon="pi pi-download"
+        label="Descargar PDF"
+        severity="success"
+        [rounded]="true"
+        [loading]="isExporting()"
+        (onClick)="downloadPdf()"
       ></p-button>
     </div>
   } @else if (certificateStore.error(); as errorMessage) {

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { DjangoApiClient } from '../../../shared/api/django-api.client';
+import { PaginatedResponse } from '../../../shared/lib/models/pagination.types';
 import {
   AttemptResultResponse,
   AttemptSubmitInput,
@@ -27,6 +28,15 @@ export class AttemptApiService {
   getAttempt(attemptId: number): Observable<AttemptResultResponse> {
     return this.djangoApi.get<AttemptResultResponse>(
       `/api/v1/attempts/${attemptId}/`,
+    );
+  }
+
+  listAttempts(
+    page: number = 1,
+  ): Observable<PaginatedResponse<AttemptResultResponse>> {
+    return this.djangoApi.get<PaginatedResponse<AttemptResultResponse>>(
+      '/api/v1/attempts/',
+      { params: { page } },
     );
   }
 }

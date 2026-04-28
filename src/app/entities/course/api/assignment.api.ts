@@ -41,12 +41,50 @@ export class AssignmentApiService {
     formData.append('assignment', assignmentId.toString());
     formData.append('student', studentId.toString());
     formData.append('file', file);
-    formData.append('status', 'PENDING');
 
-    // Aquí evitamos pasar las cabeceras application/json. El DjangoApiClient debe poder tolerar FormData natural.
+    // El DjangoApiClient delega a HttpClient, que detecta FormData y emite
+    // el boundary multipart correcto sin necesidad de tocar el header.
     return this.client.post<SubmissionItem, FormData>(
       `/api/v1/submissions/`,
       formData,
     );
+  }
+
+  listAssignments(): Observable<AssignmentItem[]> {
+    return this.client
+      .get<PaginatedDjangoResponse<AssignmentItem>>('/api/v1/assignments/')
+      .pipe(map((res) => res.results));
+  }
+
+  createAssignment(payload: {
+    lesson: number;
+    title: string;
+    description?: string;
+    due_date?: string | null;
+    max_score?: number;
+  }): Observable<AssignmentItem> {
+    return this.client.post<AssignmentItem, typeof payload>(
+      '/api/v1/assignments/',
+      payload,
+    );
+  }
+
+  updateAssignment(
+    id: number,
+    payload: Partial<{
+      title: string;
+      description: string;
+      due_date: string | null;
+      max_score: number;
+    }>,
+  ): Observable<AssignmentItem> {
+    return this.client.patch<AssignmentItem, typeof payload>(
+      `/api/v1/assignments/${id}/`,
+      payload,
+    );
+  }
+
+  deleteAssignment(id: number): Observable<void> {
+    return this.client.delete<void>(`/api/v1/assignments/${id}/`);
   }
 }

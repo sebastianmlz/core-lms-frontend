@@ -35,6 +35,13 @@ export const routes: Routes = [
                 (m) => m.CourseViewerPageComponent,
               ),
           },
+          {
+            path: 'attempts',
+            loadComponent: () =>
+              import('./pages/student/attempts-page/student-attempts-page.component').then(
+                (m) => m.StudentAttemptsPageComponent,
+              ),
+          },
         ],
       },
       {
@@ -54,6 +61,20 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./pages/tutor/course-viewer-page/course-viewer-page.component').then(
                 (m) => m.TutorCourseViewerPageComponent,
+              ),
+          },
+          {
+            path: 'admin',
+            loadComponent: () =>
+              import('./pages/tutor/admin-page/tutor-admin-page.component').then(
+                (m) => m.TutorAdminPageComponent,
+              ),
+          },
+          {
+            path: 'academic',
+            loadComponent: () =>
+              import('./pages/tutor/academic-page/tutor-academic-page.component').then(
+                (m) => m.TutorAcademicPageComponent,
               ),
           },
         ],

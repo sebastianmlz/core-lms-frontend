@@ -1,0 +1,131 @@
+<section class="space-y-6 animate-fadein pb-10">
+  <header
+    class="rounded-3xl bg-gradient-to-br from-indigo-900 via-sky-800 to-teal-800 p-6 md:p-8 text-white shadow-xl"
+  >
+    <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">
+      Mis Intentos de Quiz
+    </h1>
+    <p class="mt-2 text-sm text-sky-100 max-w-2xl">
+      Histórico paginado de los quizzes que has rendido. Toca un intento para
+      revisar el resultado y el plan adaptativo asociado.
+    </p>
+  </header>
+
+  @if (isLoading()) {
+    <div class="flex items-center justify-center p-10">
+      <p-progressSpinner></p-progressSpinner>
+    </div>
+  } @else if (error()) {
+    <div
+      class="rounded-2xl border border-red-300 bg-red-50 p-5 text-red-800"
+      role="alert"
+    >
+      <p class="font-semibold">{{ error() }}</p>
+      <p class="text-sm mt-1">
+        Intenta recargar la página o vuelve a iniciar sesión.
+      </p>
+    </div>
+  } @else if (count() === 0) {
+    <div
+      class="rounded-2xl border border-slate-200 bg-white p-10 text-center text-slate-500"
+    >
+      <p class="text-lg font-semibold">Aún no has rendido ningún quiz.</p>
+      <p class="text-sm mt-1">
+        Cuando completes un quiz, aparecerá aquí con su puntaje y plan
+        adaptativo.
+      </p>
+    </div>
+  } @else {
+    <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <p-table
+        [value]="rows()"
+        [rows]="10"
+        [paginator]="false"
+        styleClass="p-datatable-sm"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>ID</th>
+            <th>Quiz</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Score</th>
+            <th>Estado</th>
+            <th>Plan IA</th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-row>
+          <tr>
+            <td class="font-mono text-xs">{{ row.id }}</td>
+            <td>{{ row.quiz }}</td>
+            <td>{{ row.start_time | date: 'short' }}</td>
+            <td>
+              {{ row.end_time ? (row.end_time | date: 'short') : '—' }}
+            </td>
+            <td>{{ row.final_score ?? '—' }}</td>
+            <td>
+              @if (row.is_submitted) {
+                <p-tag value="Enviado" severity="success"></p-tag>
+              } @else {
+                <p-tag value="En curso" severity="warning"></p-tag>
+              }
+            </td>
+            <td>
+              @switch (row.planStatus) {
+                @case ('success') {
+                  <p-tag value="Listo" severity="success"></p-tag>
+                }
+                @case ('fallback') {
+                  <p-tag value="Fallback" severity="warning"></p-tag>
+                }
+                @case ('pending') {
+                  <p-tag value="Procesando" severity="info"></p-tag>
+                }
+                @default {
+                  <p-tag value="Sin plan" severity="secondary"></p-tag>
+                }
+              }
+            </td>
+            <td>
+              <p-button
+                label="Revisar"
+                icon="pi pi-eye"
+                severity="info"
+                size="small"
+                (onClick)="openAttempt(row.id)"
+              ></p-button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <div
+        class="flex items-center justify-between px-4 py-3 border-t border-slate-200"
+      >
+        <p class="text-xs text-slate-500">
+          Total: {{ count() }} — Página {{ currentPage() }}
+        </p>
+        <div class="flex gap-2">
+          <p-button
+            icon="pi pi-chevron-left"
+            label="Anterior"
+            [disabled]="!hasPrevious()"
+            severity="secondary"
+            size="small"
+            (onClick)="prev()"
+          ></p-button>
+          <p-button
+            icon="pi pi-chevron-right"
+            iconPos="right"
+            label="Siguiente"
+            [disabled]="!hasNext()"
+            severity="secondary"
+            size="small"
+            (onClick)="next()"
+          ></p-button>
+        </div>
+      </div>
+    </div>
+  }
+</section>

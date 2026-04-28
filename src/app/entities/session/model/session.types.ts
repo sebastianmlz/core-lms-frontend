@@ -6,9 +6,20 @@ export interface LoginCredentials {
   preferredRole: UserRole;
 }
 
+export interface TokenUserPayload {
+  id: number;
+  username: string;
+  email: string;
+  role: UserRole;
+  vark_dominant: string | null;
+  full_name: string;
+}
+
 export interface TokenPairResponse {
   access: string;
   refresh: string;
+  user?: TokenUserPayload;
+  // Top-level fallbacks kept for backwards compatibility with older tests/mocks.
   role?: UserRole;
   user_id?: number;
 }

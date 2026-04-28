@@ -5,6 +5,7 @@ Angular frontend for Core LMS, generated with Angular CLI 21.
 ## Local development
 
 Required Node.js version for Angular CLI 21 in this project:
+
 - `>= 20.19.0` or `>= 22.12.0`
 
 Install dependencies:
@@ -53,6 +54,7 @@ Angular environment values are compile-time constants for a static SPA. This pro
 - `AXIOM_API_URL`
 
 How it works:
+
 - `scripts/ensure-environments.mjs` still only creates `src/environments/environment.ts` and `src/environments/environment.development.ts` when missing.
 - `.dockerignore` excludes those generated files from the Docker context.
 - During Docker build, prebuild generation runs inside the container, so the files are generated from `src/environments/environment.example.ts` and can consume `DJANGO_API_URL` and `AXIOM_API_URL` when provided.
@@ -97,15 +99,18 @@ docker run --rm core-lms-frontend:local sh -lc "grep -R \"https://axiom.example.
 ## Railway configuration
 
 Railway is configured through `railway.toml`:
+
 - `builder = "DOCKERFILE"`
 - `dockerfilePath = "Dockerfile"`
 - deploy healthcheck on `/`
 
 In Railway service variables, define:
+
 - `DJANGO_API_URL`
 - `AXIOM_API_URL`
 
 Post-deploy checks in Railway:
+
 - build log shows Dockerfile build stages (not Railpack)
 - deploy healthcheck is healthy
 - deep links return the app (no static 404)

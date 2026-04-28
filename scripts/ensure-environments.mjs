@@ -39,7 +39,10 @@ function applyApiUrlOverrides(template) {
     }
 
     const propertyPattern = new RegExp(`(${property}\\s*:\\s*)['"][^'"]*['"]`);
-    output = output.replace(propertyPattern, `$1'${escapeSingleQuotedValue(value)}'`);
+    output = output.replace(
+      propertyPattern,
+      `$1'${escapeSingleQuotedValue(value)}'`,
+    );
   }
 
   return output;

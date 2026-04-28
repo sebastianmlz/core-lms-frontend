@@ -40,6 +40,14 @@ export interface AttemptAxiomError {
   status_code?: number;
 }
 
+export interface AttemptAnswerDetail {
+  question_id: number;
+  question_text: string;
+  selected_choice_id: number;
+  selected_choice_text: string;
+  is_correct: boolean;
+}
+
 export interface AttemptResultResponse {
   id: number;
   student: number;
@@ -49,6 +57,7 @@ export interface AttemptResultResponse {
   final_score: string | null;
   is_submitted: boolean;
   adaptive_plan: AttemptAdaptivePlanEnvelope;
+  answers?: AttemptAnswerDetail[];
   score?: number;
   max_score?: number;
   failed_concepts?: string[];

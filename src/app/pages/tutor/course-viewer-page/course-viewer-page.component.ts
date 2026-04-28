@@ -28,6 +28,7 @@ import { QuizApiService } from '../../../entities/assessment/api/quiz.api';
 import { LessonItem } from '../../../entities/course/model/course.types';
 import { GradingPanelComponent } from '../../../features/tutor/grading-panel/grading-panel.component';
 import { LessonViewerComponent } from '../../../features/course/lesson-viewer/lesson-viewer.component';
+import { StudentAttemptDetailComponent } from '../../../features/tutor/student-attempt-detail/student-attempt-detail.component';
 
 @Component({
   selector: 'app-tutor-course-viewer-page',
@@ -41,6 +42,7 @@ import { LessonViewerComponent } from '../../../features/course/lesson-viewer/le
     ProgressBarModule,
     GradingPanelComponent,
     LessonViewerComponent,
+    StudentAttemptDetailComponent,
   ],
   templateUrl: './course-viewer-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,6 +54,10 @@ export class TutorCourseViewerPageComponent {
 
   readonly selectedLesson = signal<LessonItem | null>(null);
   readonly showGradingPanel = signal(false);
+
+  /** Per-student drill-down state */
+  readonly selectedStudentId = signal<number | null>(null);
+  readonly selectedStudentName = signal<string>('');
 
   readonly courseName = computed(
     () => this.courseStore.selectedCourseDetail()?.name ?? 'Cargando curso...',
@@ -79,10 +85,26 @@ export class TutorCourseViewerPageComponent {
   selectLesson(lesson: LessonItem): void {
     this.showGradingPanel.set(false);
     this.selectedLesson.set(lesson);
+    // Navigating to a lesson clears student drill-down
+    this.selectedStudentId.set(null);
+    this.selectedStudentName.set('');
   }
 
   clearSelection(): void {
     this.selectedLesson.set(null);
+    this.selectedStudentId.set(null);
+    this.selectedStudentName.set('');
+  }
+
+  selectStudent(id: number, name: string): void {
+    this.selectedLesson.set(null);
+    this.selectedStudentId.set(id);
+    this.selectedStudentName.set(name);
+  }
+
+  clearStudentSelection(): void {
+    this.selectedStudentId.set(null);
+    this.selectedStudentName.set('');
   }
 
   private readonly formBuilder = inject(FormBuilder);

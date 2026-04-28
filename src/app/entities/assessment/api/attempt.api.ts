@@ -37,4 +37,24 @@ export class AttemptApiService {
       { params: { page } },
     );
   }
+
+  /** Tutor: list all attempts for a specific student across all quizzes */
+  listAttemptsByStudent(
+    studentId: number,
+  ): Observable<PaginatedResponse<AttemptResultResponse>> {
+    return this.djangoApi.get<PaginatedResponse<AttemptResultResponse>>(
+      '/api/v1/attempts/',
+      { params: { student: studentId } },
+    );
+  }
+
+  /** Tutor: list all attempts for all students in a course */
+  listAttemptsByCourse(
+    courseId: number,
+  ): Observable<PaginatedResponse<AttemptResultResponse>> {
+    return this.djangoApi.get<PaginatedResponse<AttemptResultResponse>>(
+      '/api/v1/attempts/',
+      { params: { quiz__course: courseId } },
+    );
+  }
 }

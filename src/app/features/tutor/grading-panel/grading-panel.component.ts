@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Button } from 'primeng/button';
+import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { LessonItem } from '../../../entities/course/model/course.types';
 import { AssignmentApiService } from '../../../entities/course/api/assignment.api';
@@ -26,7 +26,7 @@ export interface GradingPayload {
 
 @Component({
   selector: 'app-grading-panel',
-  imports: [CommonModule, Button, FormsModule, InputNumberModule],
+  imports: [CommonModule, ButtonModule, FormsModule, InputNumberModule],
   templateUrl: './grading-panel.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -112,11 +112,12 @@ export class GradingPanelComponent implements OnChanges {
       );
 
       // Update local state without refreshing everything
-      const currentSubs = this.submissions();
+      const currentSubs = [...this.submissions()];
       const idx = currentSubs.findIndex((s) => s.id === submission.id);
       if (idx !== -1) {
-        currentSubs[idx] = result;
-        this.submissions.set([...currentSubs]);
+        currentSubs[idx] = { ...currentSubs[idx], ...result, grade };
+        this.submissions.set(currentSubs);
+        this.draftGrades.set(submission.id, grade);
       }
     } catch {
       console.error('Error guardando calificacion.');

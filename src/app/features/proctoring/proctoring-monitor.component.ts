@@ -18,6 +18,7 @@ import {
 } from '../../entities/proctoring/model/proctoring.types';
 
 const FLUSH_INTERVAL_MS = 5000;
+const TAB_SWITCH_DEDUP_MS = 250;
 const SEVERITY_TABLE: Record<ProctoringEventType, number> = {
   tab_switched: 1.0,
   fullscreen_exit: 1.5,
@@ -76,6 +77,7 @@ export class ProctoringMonitorComponent implements OnInit, OnDestroy {
   private visibilityHandler: (() => void) | null = null;
   private blurHandler: (() => void) | null = null;
   private fullscreenHandler: (() => void) | null = null;
+  private lastTabSwitchAt = 0;
 
   async ngOnInit(): Promise<void> {
     if (this.requireCamera) {
@@ -202,15 +204,13 @@ export class ProctoringMonitorComponent implements OnInit, OnDestroy {
   private attachVisibilityListeners(): void {
     this.visibilityHandler = () => {
       if (document.visibilityState === 'hidden') {
-        this.queue('tab_switched');
-        this.tabSwitchCount.update((v) => v + 1);
+        this.recordTabSwitch();
       }
     };
     document.addEventListener('visibilitychange', this.visibilityHandler);
 
     this.blurHandler = () => {
-      this.queue('tab_switched');
-      this.tabSwitchCount.update((v) => v + 1);
+      this.recordTabSwitch();
     };
     window.addEventListener('blur', this.blurHandler);
 
@@ -225,6 +225,11 @@ export class ProctoringMonitorComponent implements OnInit, OnDestroy {
       }
     };
     document.addEventListener('fullscreenchange', this.fullscreenHandler);
+    // Safari and older Chromium dispatch the prefixed event only.
+    document.addEventListener(
+      'webkitfullscreenchange',
+      this.fullscreenHandler as EventListener,
+    );
   }
 
   private detachVisibilityListeners(): void {
@@ -238,8 +243,25 @@ export class ProctoringMonitorComponent implements OnInit, OnDestroy {
     }
     if (this.fullscreenHandler) {
       document.removeEventListener('fullscreenchange', this.fullscreenHandler);
+      document.removeEventListener(
+        'webkitfullscreenchange',
+        this.fullscreenHandler as EventListener,
+      );
       this.fullscreenHandler = null;
     }
+  }
+
+  // Coalesces visibilitychange + window.blur, which both fire on a single
+  // alt-tab. The 250 ms cooldown drops the duplicate without losing real
+  // back-to-back switches.
+  private recordTabSwitch(): void {
+    const now = performance.now();
+    if (now - this.lastTabSwitchAt < TAB_SWITCH_DEDUP_MS) {
+      return;
+    }
+    this.lastTabSwitchAt = now;
+    this.queue('tab_switched');
+    this.tabSwitchCount.update((v) => v + 1);
   }
 
   private queue(eventType: ProctoringEventType): void {

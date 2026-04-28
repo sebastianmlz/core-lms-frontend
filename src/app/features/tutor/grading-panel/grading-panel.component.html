@@ -79,15 +79,19 @@
                   getDraftGrade(sub.id) !== undefined &&
                   getDraftGrade(sub.id) !== sub.grade
                 ) {
-                  <p-button
+                  <button
+                    pButton
+                    type="button"
                     icon="pi pi-save"
-                    size="small"
-                    [rounded]="true"
-                    [loading]="isSubmitting() === sub.id"
-                    severity="success"
+                    class="p-button-rounded p-button-success p-button-sm"
+                    [disabled]="isSubmitting() === sub.id"
                     title="Guardar Calificacion"
-                    (onClick)="saveGrade(sub)"
-                  ></p-button>
+                    (click)="saveGrade(sub)"
+                  >
+                    @if (isSubmitting() === sub.id) {
+                      <i class="pi pi-spin pi-spinner mr-2"></i>
+                    }
+                  </button>
                 }
               </div>
             </div>

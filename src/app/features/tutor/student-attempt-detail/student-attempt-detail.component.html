@@ -1,0 +1,300 @@
+<div class="space-y-4">
+  <!-- ── Header ── -->
+  <div class="flex items-center gap-3 pb-4 border-b border-slate-200">
+    <div
+      class="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-indigo-600"
+    >
+      <i class="pi pi-user text-lg"></i>
+    </div>
+    <div>
+      <p class="text-xs font-bold uppercase tracking-widest text-slate-400">
+        Detalle del Alumno
+      </p>
+      <h2 class="text-xl font-black text-slate-800">{{ studentName }}</h2>
+    </div>
+  </div>
+
+  <!-- ── Loading ── -->
+  @if (isLoading()) {
+    <div class="flex flex-col items-center justify-center py-12 gap-3">
+      <i class="pi pi-spin pi-spinner text-3xl text-indigo-500"></i>
+      <p class="text-sm text-slate-500">Cargando intentos...</p>
+    </div>
+  }
+
+  <!-- ── Generic Error ── -->
+  @else if (error()) {
+    <div
+      class="rounded-2xl border border-red-200 bg-red-50 p-6 flex items-start gap-4"
+    >
+      <i class="pi pi-exclamation-triangle text-2xl text-red-500 mt-0.5"></i>
+      <div>
+        <p class="font-bold text-red-800">Error al cargar</p>
+        <p class="text-sm text-red-700 mt-1">{{ error() }}</p>
+      </div>
+    </div>
+  }
+
+  <!-- ── Empty state (no attempts) ── -->
+  @else if (!isLoading() && cards().length === 0) {
+    <div
+      class="rounded-2xl border border-dashed border-slate-200 bg-white p-10 flex flex-col items-center text-center gap-3"
+    >
+      <div
+        class="h-14 w-14 rounded-full bg-slate-100 flex items-center justify-center"
+      >
+        <i class="pi pi-inbox text-2xl text-slate-400"></i>
+      </div>
+      <p class="font-semibold text-slate-600">Sin intentos registrados</p>
+      <p class="text-xs text-slate-400 max-w-xs">
+        Este alumno aún no ha completado ningún quiz en este curso.
+      </p>
+    </div>
+  }
+
+  <!-- ── Attempt Cards ── -->
+  @else {
+    <div class="space-y-3">
+      @for (card of cards(); track card.attempt.id) {
+        <div
+          class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden transition-all"
+        >
+          <!-- Card header (always visible) -->
+          <div class="flex items-center gap-4 p-5">
+            <!-- Score badge -->
+            <div
+              class="flex flex-col items-center justify-center h-14 w-14 rounded-xl shrink-0 font-black text-lg"
+              [class.bg-emerald-100]="
+                card.attempt.final_score !== null &&
+                +card.attempt.final_score >= 60
+              "
+              [class.text-emerald-700]="
+                card.attempt.final_score !== null &&
+                +card.attempt.final_score >= 60
+              "
+              [class.bg-amber-100]="
+                card.attempt.final_score !== null &&
+                +card.attempt.final_score < 60
+              "
+              [class.text-amber-700]="
+                card.attempt.final_score !== null &&
+                +card.attempt.final_score < 60
+              "
+              [class.bg-slate-100]="card.attempt.final_score === null"
+              [class.text-slate-400]="card.attempt.final_score === null"
+            >
+              {{
+                card.attempt.final_score !== null
+                  ? (card.attempt.final_score | number: '1.0-0')
+                  : '—'
+              }}
+            </div>
+
+            <!-- Meta -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <p class="font-bold text-slate-800 text-sm">
+                  Intento #{{ card.attempt.id }}
+                </p>
+                @if (card.attempt.is_submitted) {
+                  <p-tag
+                    value="Enviado"
+                    severity="success"
+                    [rounded]="true"
+                  ></p-tag>
+                } @else {
+                  <p-tag
+                    value="En curso"
+                    severity="warn"
+                    [rounded]="true"
+                  ></p-tag>
+                }
+                @switch (card.planStatus) {
+                  @case ('success') {
+                    <p-tag
+                      value="Plan IA ✓"
+                      severity="success"
+                      [rounded]="true"
+                    ></p-tag>
+                  }
+                  @case ('fallback') {
+                    <p-tag
+                      value="Plan Fallback"
+                      severity="warn"
+                      [rounded]="true"
+                    ></p-tag>
+                  }
+                  @case ('pending') {
+                    <p-tag
+                      value="Plan Procesando"
+                      severity="info"
+                      [rounded]="true"
+                    ></p-tag>
+                  }
+                }
+              </div>
+              <p class="text-xs text-slate-500 mt-1">
+                {{ card.attempt.start_time | date: 'medium' }}
+                @if (card.attempt.end_time) {
+                  → {{ card.attempt.end_time | date: 'shortTime' }}
+                }
+              </p>
+              <!-- Failed concepts -->
+              @if (
+                card.attempt.failed_concepts &&
+                card.attempt.failed_concepts.length > 0
+              ) {
+                <div class="flex flex-wrap gap-1 mt-2">
+                  @for (c of card.attempt.failed_concepts; track c) {
+                    <span
+                      class="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-700"
+                    >
+                      <i class="pi pi-times-circle text-[9px]"></i>{{ c }}
+                    </span>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Expand toggle -->
+            <button
+              type="button"
+              class="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:border-indigo-300 transition-all shrink-0"
+              (click)="toggleProctoring(card.attempt.id)"
+            >
+              <i class="pi pi-shield text-indigo-500"></i>
+              <span>Proctoring</span>
+              <i
+                class="pi text-slate-400 transition-transform duration-200"
+                [class.pi-chevron-down]="
+                  expandedAttemptId() !== card.attempt.id
+                "
+                [class.pi-chevron-up]="expandedAttemptId() === card.attempt.id"
+              ></i>
+            </button>
+          </div>
+
+          <!-- Answer breakdown (always visible when answers exist) -->
+          @if (card.attempt.answers && card.attempt.answers.length > 0) {
+            <div class="border-t border-slate-100 bg-slate-50/40 p-5">
+              <app-attempt-answer-breakdown [answers]="card.attempt.answers" />
+            </div>
+          }
+
+          <!-- Proctoring Event Timeline (expanded) -->
+          @if (expandedAttemptId() === card.attempt.id) {
+            <div
+              class="border-t border-slate-100 bg-slate-50 p-5 animate-fadein"
+            >
+              <p
+                class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4"
+              >
+                <i class="pi pi-list-check mr-1.5"></i>Registro de Eventos de
+                Proctoring
+              </p>
+
+              @if (loadingProctoringId() === card.attempt.id) {
+                <div class="flex items-center gap-2 py-4">
+                  <i class="pi pi-spin pi-spinner text-indigo-500"></i>
+                  <span class="text-sm text-slate-500"
+                    >Cargando eventos...</span
+                  >
+                </div>
+              } @else if (
+                !proctoringCache()[card.attempt.id] ||
+                proctoringCache()[card.attempt.id].length === 0
+              ) {
+                <div
+                  class="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4"
+                >
+                  <i class="pi pi-shield-check text-emerald-500 text-xl"></i>
+                  <div>
+                    <p class="font-semibold text-emerald-800 text-sm">
+                      Sin alertas registradas
+                    </p>
+                    <p class="text-xs text-emerald-700 mt-0.5">
+                      No se detectaron eventos de proctoring durante este
+                      intento.
+                    </p>
+                  </div>
+                </div>
+              } @else {
+                <!-- Timeline -->
+                <ol
+                  class="relative border-l-2 border-indigo-200 ml-3 space-y-0"
+                >
+                  @for (
+                    log of proctoringCache()[card.attempt.id];
+                    track log.id;
+                    let last = $last
+                  ) {
+                    <li class="relative pl-6 pb-5" [class.pb-0]="last">
+                      <!-- Timeline dot -->
+                      <span
+                        class="absolute -left-[9px] top-1 h-4 w-4 rounded-full border-2 border-white flex items-center justify-center"
+                        [class.bg-red-400]="log.severity_score >= 0.8"
+                        [class.bg-amber-400]="
+                          log.severity_score >= 0.4 && log.severity_score < 0.8
+                        "
+                        [class.bg-slate-400]="log.severity_score < 0.4"
+                      ></span>
+
+                      <div
+                        class="rounded-xl border bg-white p-3 shadow-sm"
+                        [class.border-red-200]="log.severity_score >= 0.8"
+                        [class.border-amber-200]="
+                          log.severity_score >= 0.4 && log.severity_score < 0.8
+                        "
+                        [class.border-slate-200]="log.severity_score < 0.4"
+                      >
+                        <div class="flex items-center justify-between gap-2">
+                          <div class="flex items-center gap-2">
+                            <i
+                              class="text-sm"
+                              [ngClass]="[
+                                eventTypeIcon(log.event_type),
+                                log.severity_score >= 0.8
+                                  ? 'text-red-500'
+                                  : log.severity_score >= 0.4
+                                    ? 'text-amber-500'
+                                    : 'text-slate-500',
+                              ]"
+                            ></i>
+                            <p class="text-sm font-bold text-slate-800">
+                              {{ eventTypeLabel(log.event_type) }}
+                            </p>
+                          </div>
+                          <span
+                            class="text-[10px] font-black uppercase tracking-wider rounded-full px-2 py-0.5"
+                            [class.bg-red-100]="log.severity_score >= 0.8"
+                            [class.text-red-700]="log.severity_score >= 0.8"
+                            [class.bg-amber-100]="
+                              log.severity_score >= 0.4 &&
+                              log.severity_score < 0.8
+                            "
+                            [class.text-amber-700]="
+                              log.severity_score >= 0.4 &&
+                              log.severity_score < 0.8
+                            "
+                            [class.bg-slate-100]="log.severity_score < 0.4"
+                            [class.text-slate-600]="log.severity_score < 0.4"
+                          >
+                            {{ severityLabel(log.severity_score) }} —
+                            {{ log.severity_score | number: '1.2-2' }}
+                          </span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1 ml-6">
+                          {{ log.timestamp | date: 'HH:mm:ss — d MMM y' }}
+                        </p>
+                      </div>
+                    </li>
+                  }
+                </ol>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

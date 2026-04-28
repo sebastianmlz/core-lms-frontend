@@ -12,8 +12,13 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Button } from 'primeng/button';
-import { LessonItem } from '../../../entities/course/model/course.types';
+import { SkeletonModule } from 'primeng/skeleton';
+import {
+  LessonItem,
+  ResourceItem,
+} from '../../../entities/course/model/course.types';
 import { AssignmentApiService } from '../../../entities/course/api/assignment.api';
+import { ResourceApiService } from '../../../entities/course/api/resource.api';
 import {
   AssignmentItem,
   SubmissionItem,
@@ -26,7 +31,7 @@ import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-lesson-viewer',
-  imports: [CommonModule, Button],
+  imports: [CommonModule, Button, SkeletonModule],
   templateUrl: './lesson-viewer.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -35,22 +40,21 @@ export class LessonViewerComponent implements OnChanges {
   @Output() openGrading = new EventEmitter<void>();
 
   private readonly assignmentApi = inject(AssignmentApiService);
+  private readonly resourceApi = inject(ResourceApiService);
   private readonly sessionStore = inject(SessionStore) as SessionStoreType;
 
   readonly activeRole = computed(() => this.sessionStore.activeRole());
 
-  readonly hasVideo = computed(
-    () =>
-      this.lesson.resources?.some((r) => r.resource_type === 'VIDEO') ?? false,
-  );
+  // Resources fetched on lesson change (not embedded in CourseDetail)
+  readonly resources = signal<ResourceItem[]>([]);
+  readonly isLoadingResources = signal(false);
+
   readonly mainVideo = computed(
-    () =>
-      this.lesson.resources?.find((r) => r.resource_type === 'VIDEO') ?? null,
+    () => this.resources().find((r) => r.resource_type === 'VIDEO') ?? null,
   );
 
-  readonly otherResources = computed(
-    () =>
-      this.lesson.resources?.filter((r) => r.resource_type !== 'VIDEO') ?? [],
+  readonly otherResources = computed(() =>
+    this.resources().filter((r) => r.resource_type !== 'VIDEO'),
   );
 
   // Assignment & Submissions state
@@ -65,7 +69,21 @@ export class LessonViewerComponent implements OnChanges {
       this.assignment.set(null);
       this.submission.set(null);
       this.totalSubmissions.set(0);
+      this.resources.set([]);
       void this.loadAssignmentData(this.lesson.id);
+      void this.loadResourcesData(this.lesson.id);
+    }
+  }
+
+  private async loadResourcesData(lessonId: number): Promise<void> {
+    this.isLoadingResources.set(true);
+    try {
+      const items = await firstValueFrom(this.resourceApi.list(lessonId));
+      this.resources.set(items ?? []);
+    } catch {
+      this.resources.set([]);
+    } finally {
+      this.isLoadingResources.set(false);
     }
   }
 

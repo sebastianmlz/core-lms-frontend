@@ -16,7 +16,9 @@
           class="text-[10px] font-bold uppercase tracking-widest text-cyan-600 truncate min-w-0"
           >Consola de Tutor</span
         >
-        <h1 class="text-xl font-bold text-slate-800 leading-tight truncate min-w-0">
+        <h1
+          class="text-xl font-bold text-slate-800 leading-tight truncate min-w-0"
+        >
           {{ courseName() }}
         </h1>
       </div>
@@ -172,6 +174,26 @@
         @if (courseStore.isLoadingDashboard()) {
           <div class="flex h-full items-center justify-center">
             <i class="pi pi-spin pi-spinner text-4xl text-cyan-500"></i>
+          </div>
+        } @else if (selectedStudentId(); as sId) {
+          <!-- ── Per-Student Drill-Down View ── -->
+          <div class="mx-auto max-w-5xl">
+            <div class="flex items-center gap-3 mb-6">
+              <button
+                type="button"
+                class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm hover:bg-slate-50 hover:border-indigo-300 transition-all"
+                (click)="clearStudentSelection()"
+              >
+                <i class="pi pi-arrow-left text-xs"></i>
+                Volver a Analytics
+              </button>
+            </div>
+            <app-student-attempt-detail
+              [studentId]="sId"
+              [studentName]="selectedStudentName()"
+              [courseId]="courseStore.selectedCourseId()"
+            >
+            </app-student-attempt-detail>
           </div>
         } @else if (dashboard(); as dash) {
           <div class="mx-auto max-w-5xl space-y-6">
@@ -364,6 +386,70 @@
                 }
               </div>
             </div>
+
+            <!-- ── Students Roster ── -->
+            @if (dash.students && dash.students.length > 0) {
+              <div
+                class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+              >
+                <div
+                  class="flex items-center justify-between px-6 py-4 border-b border-slate-100"
+                >
+                  <h3 class="font-bold text-slate-800">
+                    <i class="pi pi-users text-indigo-500 mr-2"></i>Alumnos
+                    Matriculados
+                  </h3>
+                  <span
+                    class="text-xs font-bold text-slate-400 uppercase tracking-widest"
+                    >{{ dash.students.length }} alumnos — clic para ver
+                    detalle</span
+                  >
+                </div>
+                <ul class="divide-y divide-slate-100">
+                  @for (
+                    student of dash.students;
+                    track student.id;
+                    let i = $index
+                  ) {
+                    <li>
+                      <button
+                        type="button"
+                        class="w-full flex items-center gap-4 px-6 py-4 text-left hover:bg-indigo-50 transition-colors group focus:outline-none focus:bg-indigo-50"
+                        (click)="selectStudent(student.id, student.username)"
+                      >
+                        <div
+                          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 font-black text-sm group-hover:bg-indigo-200 transition-colors"
+                        >
+                          {{ student.username.charAt(0).toUpperCase() }}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <p
+                            class="font-semibold text-slate-800 truncate text-sm"
+                          >
+                            {{ student.username }}
+                          </p>
+                          <p class="text-xs text-slate-400">
+                            Ver intentos de quiz y registro de proctoring
+                          </p>
+                        </div>
+                        <i
+                          class="pi pi-chevron-right text-slate-300 group-hover:text-indigo-400 transition-colors"
+                        ></i>
+                      </button>
+                    </li>
+                  }
+                </ul>
+              </div>
+            } @else {
+              <div
+                class="bg-white rounded-2xl border border-dashed border-slate-200 p-8 text-center"
+              >
+                <i class="pi pi-users text-3xl text-slate-300 mb-3"></i>
+                <p class="text-sm font-semibold text-slate-500">
+                  No hay alumnos matriculados aún.
+                </p>
+              </div>
+            }
           </div>
         }
       }

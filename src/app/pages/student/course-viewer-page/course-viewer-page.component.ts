@@ -17,22 +17,26 @@ import {
 import { LessonItem } from '../../../entities/course/model/course.types';
 import { LessonViewerComponent } from '../../../features/course/lesson-viewer/lesson-viewer.component';
 import { QuizPlayerComponent } from '../../../features/reasoning/quiz-player/quiz-player.component';
+import { AdaptivePlanTimelineComponent } from '../../../features/reasoning/adaptive-plan-timeline/adaptive-plan-timeline.component';
 import {
   QuizStore,
   QuizStoreType,
 } from '../../../entities/assessment/model/quiz.store';
 import { AttemptApiService } from '../../../entities/assessment/api/attempt.api';
-import { AttemptAnswerInput } from '../../../entities/assessment/model/attempt.types';
 import {
-  ReasoningStore,
-  ReasoningStoreType,
-} from '../../../entities/reasoning/model/reasoning.store';
+  AttemptAnswerInput,
+  AttemptResultResponse,
+  AttemptAdaptiveFallback,
+  AttemptAdaptivePending,
+} from '../../../entities/assessment/model/attempt.types';
+import { AdaptivePlanResponse } from '../../../entities/reasoning/model/reasoning.types';
 import { firstValueFrom } from 'rxjs';
 import {
   SessionStore,
   SessionStoreType,
 } from '../../../entities/session/model/session.store';
 import { ProctoringMonitorComponent } from '../../../features/proctoring/proctoring-monitor.component';
+import { AttemptAnswerBreakdownComponent } from '../../../features/assessment/attempt-answer-breakdown/attempt-answer-breakdown.component';
 
 @Component({
   selector: 'app-course-viewer-page',
@@ -42,7 +46,9 @@ import { ProctoringMonitorComponent } from '../../../features/proctoring/proctor
     SkeletonModule,
     LessonViewerComponent,
     QuizPlayerComponent,
+    AdaptivePlanTimelineComponent,
     ProctoringMonitorComponent,
+    AttemptAnswerBreakdownComponent,
   ],
   templateUrl: './course-viewer-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -55,14 +61,13 @@ export class CourseViewerPageComponent {
   private readonly router = inject(Router);
   readonly courseStore = inject(CourseStore) as CourseStoreType;
   readonly quizStore = inject(QuizStore) as QuizStoreType;
-  readonly reasoningStore = inject(ReasoningStore) as ReasoningStoreType;
   readonly sessionStore = inject(SessionStore) as SessionStoreType;
   private readonly attemptApi = inject(AttemptApiService);
 
   readonly selectedLesson = signal<LessonItem | null>(null);
   readonly selectedQuizId = signal<number | null>(null);
+  readonly submittedAttempt = signal<AttemptResultResponse | null>(null);
 
-  // Deriva el nombre del curso activo
   readonly courseName = computed(
     () => this.courseStore.selectedCourseDetail()?.name ?? 'Cargando curso...',
   );
@@ -84,11 +89,13 @@ export class CourseViewerPageComponent {
 
   selectLesson(lesson: LessonItem): void {
     this.selectedQuizId.set(null);
+    this.submittedAttempt.set(null);
     this.selectedLesson.set(lesson);
   }
 
   selectQuiz(quizId: number): void {
     this.selectedLesson.set(null);
+    this.submittedAttempt.set(null);
     this.selectedQuizId.set(quizId);
     void this.quizStore.loadQuizDetail(quizId);
   }
@@ -106,15 +113,12 @@ export class CourseViewerPageComponent {
           answers,
         }),
       );
-      // Sella los eventos de proctoring buffered con el attempt.id real
-      // y dispara el flush bulk antes de cerrar el monitor.
       if (this.proctoringMonitor) {
         await this.proctoringMonitor.finalize(attempt.id);
         await this.proctoringMonitor.stop();
       }
       this.selectedQuizId.set(null);
-      // Al terminar el quiz, redirigimos al detalle del intento
-      void this.router.navigate(['/student/attempts', attempt.id]);
+      this.submittedAttempt.set(attempt);
     } catch (err) {
       console.error('Error submitting quiz', err);
     }
@@ -127,7 +131,32 @@ export class CourseViewerPageComponent {
     this.selectedQuizId.set(null);
   }
 
+  closeResult(): void {
+    this.submittedAttempt.set(null);
+  }
+
   goBack(): void {
     void this.router.navigate(['/student']);
+  }
+
+  getAttemptPlanStatus(
+    attempt: AttemptResultResponse,
+  ): 'success' | 'fallback' | 'pending' | 'none' {
+    const plan = attempt.adaptive_plan;
+    if (!plan) return 'none';
+    if ((plan as AdaptivePlanResponse).items !== undefined) return 'success';
+    if ((plan as AttemptAdaptiveFallback).fallback === true) return 'fallback';
+    if ((plan as AttemptAdaptivePending).job_id !== undefined) return 'pending';
+    return 'none';
+  }
+
+  getAttemptPlanItems(attempt: AttemptResultResponse) {
+    const plan = attempt.adaptive_plan as AdaptivePlanResponse | null;
+    return plan?.items ?? [];
+  }
+
+  getAttemptPlanLatencyMs(attempt: AttemptResultResponse): number | null {
+    const plan = attempt.adaptive_plan as AdaptivePlanResponse | null;
+    return plan?._meta?.llm_latency_ms ?? null;
   }
 }

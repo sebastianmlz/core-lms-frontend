@@ -23,6 +23,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
 import { TabsModule } from 'primeng/tabs';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { CourseStore, CourseStoreType } from '../../../entities/course/model/course.store';
 import { AssignmentApiService } from '../../../entities/course/api/assignment.api';
 import { ResourceApiService } from '../../../entities/course/api/resource.api';
@@ -53,6 +54,7 @@ import { GlobalToastService } from '../../../shared/lib/services/toast.service';
     SelectModule,
     TabsModule,
     TagModule,
+    TooltipModule,
   ],
   templateUrl: './tutor-admin-page.component.html',
   styleUrl: './tutor-admin-page.component.css',

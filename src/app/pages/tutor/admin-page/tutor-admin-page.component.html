@@ -63,17 +63,25 @@
                   {{ row.due_date ? (row.due_date | date: 'short') : '—' }}
                 </td>
                 <td>{{ row.max_score }}</td>
-                <td class="flex gap-2">
+                <td class="flex items-center gap-2">
                   <p-button
                     icon="pi pi-pencil"
                     severity="secondary"
                     size="small"
+                    [rounded]="true"
+                    [text]="true"
+                    pTooltip="Editar"
+                    tooltipPosition="top"
                     (onClick)="editAssignment(row)"
                   ></p-button>
                   <p-button
                     icon="pi pi-trash"
                     severity="danger"
                     size="small"
+                    [rounded]="true"
+                    [text]="true"
+                    pTooltip="Eliminar"
+                    tooltipPosition="top"
                     (onClick)="deleteAssignment(row)"
                   ></p-button>
                 </td>
@@ -132,11 +140,15 @@
                   </a>
                 </td>
                 <td>{{ row.created_at | date: 'short' }}</td>
-                <td>
+                <td class="flex items-center gap-2">
                   <p-button
                     icon="pi pi-trash"
                     severity="danger"
                     size="small"
+                    [rounded]="true"
+                    [text]="true"
+                    pTooltip="Eliminar"
+                    tooltipPosition="top"
                     (onClick)="deleteResource(row)"
                   ></p-button>
                 </td>
@@ -229,20 +241,22 @@
   </form>
 
   <ng-template pTemplate="footer">
-    <p-button
-      label="Cancelar"
-      severity="secondary"
-      [disabled]="isSavingAssignment()"
-      (onClick)="assignmentDialogOpen.set(false)"
-    ></p-button>
-    <p-button
-      label="Guardar"
-      icon="pi pi-save"
-      severity="success"
-      [loading]="isSavingAssignment()"
-      [disabled]="assignmentForm.invalid"
-      (onClick)="saveAssignment()"
-    ></p-button>
+    <div class="flex justify-end gap-2 pt-2">
+      <p-button
+        label="Cancelar"
+        severity="secondary"
+        [disabled]="isSavingAssignment()"
+        (onClick)="assignmentDialogOpen.set(false)"
+      ></p-button>
+      <p-button
+        label="Guardar"
+        icon="pi pi-save"
+        severity="success"
+        [loading]="isSavingAssignment()"
+        [disabled]="assignmentForm.invalid"
+        (onClick)="saveAssignment()"
+      ></p-button>
+    </div>
   </ng-template>
 </p-dialog>
 
@@ -311,6 +325,7 @@
   </form>
 
   <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2 pt-2">
     <p-button
       label="Cancelar"
       severity="secondary"
@@ -325,5 +340,6 @@
       [disabled]="resourceForm.invalid || !selectedFile"
       (onClick)="uploadResource()"
     ></p-button>
+    </div>
   </ng-template>
 </p-dialog>

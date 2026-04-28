@@ -23,6 +23,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { TabsModule } from 'primeng/tabs';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { AcademicApiService } from '../../../entities/academic/api/academic.api';
 import {
@@ -53,6 +54,7 @@ type EntityKind = 'career' | 'semester' | 'course' | 'module' | 'lesson';
     SelectModule,
     TabsModule,
     TagModule,
+    TooltipModule,
     ProgressSpinnerModule,
   ],
   templateUrl: './tutor-academic-page.component.html',

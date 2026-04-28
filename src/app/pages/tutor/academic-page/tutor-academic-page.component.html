@@ -117,7 +117,10 @@
                 <td class="font-semibold">{{ row.name }}</td>
                 <td class="text-sm text-slate-600">{{ row.description }}</td>
                 <td>{{ row.created_at | date: 'short' }}</td>
-                <td class="flex items-center gap-2" (click)="$event.stopPropagation()">
+                <td
+                  class="flex items-center gap-2"
+                  (click)="$event.stopPropagation()"
+                >
                   <p-button
                     icon="pi pi-pencil"
                     severity="secondary"
@@ -188,7 +191,10 @@
                 <td>
                   <p-tag [value]="row.period" severity="info"></p-tag>
                 </td>
-                <td class="flex items-center gap-2" (click)="$event.stopPropagation()">
+                <td
+                  class="flex items-center gap-2"
+                  (click)="$event.stopPropagation()"
+                >
                   <p-button
                     icon="pi pi-pencil"
                     severity="secondary"
@@ -257,7 +263,10 @@
                 </td>
                 <td class="font-semibold">{{ row.name }}</td>
                 <td class="text-sm text-slate-600">{{ row.description }}</td>
-                <td class="flex items-center gap-2" (click)="$event.stopPropagation()">
+                <td
+                  class="flex items-center gap-2"
+                  (click)="$event.stopPropagation()"
+                >
                   <p-button
                     icon="pi pi-pencil"
                     severity="secondary"
@@ -324,7 +333,10 @@
                 <td class="font-semibold">{{ row.title }}</td>
                 <td class="text-sm text-slate-600">{{ row.description }}</td>
                 <td>{{ row.order }}</td>
-                <td class="flex items-center gap-2" (click)="$event.stopPropagation()">
+                <td
+                  class="flex items-center gap-2"
+                  (click)="$event.stopPropagation()"
+                >
                   <p-button
                     icon="pi pi-pencil"
                     severity="secondary"
@@ -425,11 +437,15 @@
   [header]="
     (editingId() ? 'Editar' : 'Nuevo') +
     ' ' +
-    (dialogKind() === 'career' ? 'carrera'
-      : dialogKind() === 'semester' ? 'semestre'
-      : dialogKind() === 'course' ? 'curso'
-      : dialogKind() === 'module' ? 'módulo'
-      : 'lección')
+    (dialogKind() === 'career'
+      ? 'carrera'
+      : dialogKind() === 'semester'
+        ? 'semestre'
+        : dialogKind() === 'course'
+          ? 'curso'
+          : dialogKind() === 'module'
+            ? 'módulo'
+            : 'lección')
   "
   [modal]="true"
   [(visible)]="dialogOpen"
@@ -448,18 +464,26 @@
   @if (dialogKind() === 'career') {
     <form [formGroup]="careerForm" class="flex flex-col gap-4">
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold uppercase text-slate-600">Nombre</label>
-        <input pInputText formControlName="name" />
+        <label for="name" class="text-xs font-bold uppercase text-slate-600"
+          >Nombre</label
+        >
+        <input id="name" pInputText formControlName="name" />
       </div>
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold uppercase text-slate-600">Código</label>
-        <input pInputText formControlName="code" />
+        <label for="code" class="text-xs font-bold uppercase text-slate-600"
+          >Código</label
+        >
+        <input id="code" pInputText formControlName="code" />
       </div>
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold uppercase text-slate-600">
+        <label
+          for="description"
+          class="text-xs font-bold uppercase text-slate-600"
+        >
           Descripción
         </label>
         <textarea
+          id="description"
           pTextarea
           formControlName="description"
           rows="3"
@@ -472,10 +496,11 @@
   @if (dialogKind() === 'semester') {
     <form [formGroup]="semesterForm" class="flex flex-col gap-4">
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold uppercase text-slate-600">
+        <label for="career" class="text-xs font-bold uppercase text-slate-600">
           Carrera
         </label>
         <p-select
+          id="career"
           formControlName="career"
           [options]="careers()"
           optionLabel="name"
@@ -485,29 +510,45 @@
         ></p-select>
       </div>
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold uppercase text-slate-600">Nombre</label>
-        <input pInputText formControlName="name" />
+        <label for="name2" class="text-xs font-bold uppercase text-slate-600"
+          >Nombre</label
+        >
+        <input id="name2" pInputText formControlName="name" />
       </div>
       <div class="grid grid-cols-3 gap-3">
         <div class="flex flex-col gap-2">
-          <label class="text-xs font-bold uppercase text-slate-600">
+          <label
+            for="number"
+            class="text-xs font-bold uppercase text-slate-600"
+          >
             Número
           </label>
-          <p-inputnumber formControlName="number" [min]="1"></p-inputnumber>
+          <p-inputnumber
+            id="number"
+            formControlName="number"
+            [min]="1"
+          ></p-inputnumber>
         </div>
         <div class="flex flex-col gap-2">
-          <label class="text-xs font-bold uppercase text-slate-600">Año</label>
+          <label for="year" class="text-xs font-bold uppercase text-slate-600"
+            >Año</label
+          >
           <p-inputnumber
+            id="year"
             formControlName="year"
             [min]="2000"
             [useGrouping]="false"
           ></p-inputnumber>
         </div>
         <div class="flex flex-col gap-2">
-          <label class="text-xs font-bold uppercase text-slate-600">
+          <label
+            for="period"
+            class="text-xs font-bold uppercase text-slate-600"
+          >
             Periodo
           </label>
           <p-select
+            id="period"
             formControlName="period"
             [options]="periodOptions"
             optionLabel="label"
@@ -523,10 +564,14 @@
   @if (dialogKind() === 'course') {
     <form [formGroup]="courseForm" class="flex flex-col gap-4">
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold uppercase text-slate-600">
+        <label
+          for="semester"
+          class="text-xs font-bold uppercase text-slate-600"
+        >
           Semestre
         </label>
         <p-select
+          id="semester"
           formControlName="semester"
           [options]="semesters()"
           optionLabel="name"
@@ -536,18 +581,26 @@
         ></p-select>
       </div>
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold uppercase text-slate-600">Nombre</label>
-        <input pInputText formControlName="name" />
+        <label for="name3" class="text-xs font-bold uppercase text-slate-600"
+          >Nombre</label
+        >
+        <input id="name3" pInputText formControlName="name" />
       </div>
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold uppercase text-slate-600">Código</label>
-        <input pInputText formControlName="code" />
+        <label for="code2" class="text-xs font-bold uppercase text-slate-600"
+          >Código</label
+        >
+        <input id="code2" pInputText formControlName="code" />
       </div>
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold uppercase text-slate-600">
+        <label
+          for="description2"
+          class="text-xs font-bold uppercase text-slate-600"
+        >
           Descripción
         </label>
         <textarea
+          id="description2"
           pTextarea
           formControlName="description"
           rows="3"
@@ -560,8 +613,11 @@
   @if (dialogKind() === 'module') {
     <form [formGroup]="moduleForm" class="flex flex-col gap-4">
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold uppercase text-slate-600">Curso</label>
+        <label for="course" class="text-xs font-bold uppercase text-slate-600"
+          >Curso</label
+        >
         <p-select
+          id="course"
           formControlName="course"
           [options]="courses()"
           optionLabel="name"
@@ -571,22 +627,34 @@
         ></p-select>
       </div>
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold uppercase text-slate-600">Título</label>
-        <input pInputText formControlName="title" />
+        <label for="title" class="text-xs font-bold uppercase text-slate-600"
+          >Título</label
+        >
+        <input id="title" pInputText formControlName="title" />
       </div>
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold uppercase text-slate-600">
+        <label
+          for="description3"
+          class="text-xs font-bold uppercase text-slate-600"
+        >
           Descripción
         </label>
         <textarea
+          id="description3"
           pTextarea
           formControlName="description"
           rows="3"
         ></textarea>
       </div>
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold uppercase text-slate-600">Orden</label>
-        <p-inputnumber formControlName="order" [min]="0"></p-inputnumber>
+        <label for="order" class="text-xs font-bold uppercase text-slate-600"
+          >Orden</label
+        >
+        <p-inputnumber
+          id="order"
+          formControlName="order"
+          [min]="0"
+        ></p-inputnumber>
       </div>
     </form>
   }
@@ -595,8 +663,11 @@
   @if (dialogKind() === 'lesson') {
     <form [formGroup]="lessonForm" class="flex flex-col gap-4">
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold uppercase text-slate-600">Módulo</label>
+        <label for="module" class="text-xs font-bold uppercase text-slate-600"
+          >Módulo</label
+        >
         <p-select
+          id="module"
           formControlName="module"
           [options]="modules()"
           optionLabel="title"
@@ -606,22 +677,31 @@
         ></p-select>
       </div>
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold uppercase text-slate-600">Título</label>
-        <input pInputText formControlName="title" />
+        <label for="title2" class="text-xs font-bold uppercase text-slate-600"
+          >Título</label
+        >
+        <input id="title2" formControlName="title" />
       </div>
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold uppercase text-slate-600">
+        <label for="content" class="text-xs font-bold uppercase text-slate-600">
           Contenido
         </label>
         <textarea
+          id="content"
           pTextarea
           formControlName="content"
           rows="4"
         ></textarea>
       </div>
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold uppercase text-slate-600">Orden</label>
-        <p-inputnumber formControlName="order" [min]="0"></p-inputnumber>
+        <label for="order2" class="text-xs font-bold uppercase text-slate-600"
+          >Orden</label
+        >
+        <p-inputnumber
+          id="order2"
+          formControlName="order"
+          [min]="0"
+        ></p-inputnumber>
       </div>
     </form>
   }

@@ -31,9 +31,7 @@ export class AttemptApiService {
     );
   }
 
-  listAttempts(
-    page: number = 1,
-  ): Observable<PaginatedResponse<AttemptResultResponse>> {
+  listAttempts(page = 1): Observable<PaginatedResponse<AttemptResultResponse>> {
     return this.djangoApi.get<PaginatedResponse<AttemptResultResponse>>(
       '/api/v1/attempts/',
       { params: { page } },

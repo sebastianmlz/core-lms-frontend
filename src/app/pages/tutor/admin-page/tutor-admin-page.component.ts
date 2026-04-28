@@ -24,12 +24,13 @@ import { SelectModule } from 'primeng/select';
 import { TabsModule } from 'primeng/tabs';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { CourseStore, CourseStoreType } from '../../../entities/course/model/course.store';
+import {
+  CourseStore,
+  CourseStoreType,
+} from '../../../entities/course/model/course.store';
 import { AssignmentApiService } from '../../../entities/course/api/assignment.api';
 import { ResourceApiService } from '../../../entities/course/api/resource.api';
-import {
-  AssignmentItem,
-} from '../../../entities/course/model/assignment.types';
+import { AssignmentItem } from '../../../entities/course/model/assignment.types';
 import {
   LessonItem,
   ResourceItem,
@@ -116,9 +117,7 @@ export class TutorAdminPageComponent implements OnInit {
     await this.courseStore.loadCourseDetail(courseId);
     const detail = this.courseStore.selectedCourseDetail();
     const flat: LessonItem[] = [];
-    detail?.modules?.forEach((m) =>
-      m.lessons?.forEach((l) => flat.push(l)),
-    );
+    detail?.modules?.forEach((m) => m.lessons?.forEach((l) => flat.push(l)));
     this.lessons.set(flat);
   }
 

@@ -1,10 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { DjangoApiClient } from '../../../shared/api/django-api.client';
-import {
-  ResourceItem,
-  ResourceType,
-} from '../model/course.types';
+import { ResourceItem, ResourceType } from '../model/course.types';
 import { PaginatedDjangoResponse } from '../model/assignment.types';
 
 @Injectable({ providedIn: 'root' })

@@ -542,7 +542,10 @@ export class TutorAcademicPageComponent implements OnInit {
           this.toast.error('Sesión expirada', 'Vuelve a iniciar sesión.');
           return;
         case 403:
-          this.toast.error('Permiso denegado', 'Esta acción es solo para tutores.');
+          this.toast.error(
+            'Permiso denegado',
+            'Esta acción es solo para tutores.',
+          );
           return;
         case 404:
           this.toast.error('No encontrado', 'El registro ya no existe.');

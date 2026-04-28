@@ -171,8 +171,11 @@
 >
   <form [formGroup]="assignmentForm" class="flex flex-col gap-4">
     <div class="flex flex-col gap-2">
-      <label class="text-xs font-bold uppercase text-slate-600">Curso</label>
+      <label for="course" class="text-xs font-bold uppercase text-slate-600"
+        >Curso</label
+      >
       <p-select
+        id="course"
         [options]="courseStore.courses()"
         optionLabel="name"
         optionValue="id"
@@ -183,8 +186,11 @@
     </div>
 
     <div class="flex flex-col gap-2">
-      <label class="text-xs font-bold uppercase text-slate-600">Lección</label>
+      <label for="lesson" class="text-xs font-bold uppercase text-slate-600"
+        >Lección</label
+      >
       <p-select
+        id="lesson"
         formControlName="lesson"
         [options]="lessons()"
         optionLabel="title"
@@ -195,8 +201,11 @@
     </div>
 
     <div class="flex flex-col gap-2">
-      <label class="text-xs font-bold uppercase text-slate-600">Título</label>
+      <label for="title" class="text-xs font-bold uppercase text-slate-600"
+        >Título</label
+      >
       <input
+        id="title"
         pInputText
         formControlName="title"
         placeholder="Implementar herencia OOP"
@@ -204,10 +213,14 @@
     </div>
 
     <div class="flex flex-col gap-2">
-      <label class="text-xs font-bold uppercase text-slate-600">
+      <label
+        for="description"
+        class="text-xs font-bold uppercase text-slate-600"
+      >
         Descripción
       </label>
       <textarea
+        id="description"
         pTextarea
         formControlName="description"
         rows="3"
@@ -217,10 +230,14 @@
 
     <div class="grid grid-cols-2 gap-4">
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold uppercase text-slate-600">
+        <label
+          for="due_date"
+          class="text-xs font-bold uppercase text-slate-600"
+        >
           Fecha límite
         </label>
         <p-datepicker
+          id="due_date"
           formControlName="due_date"
           [showIcon]="true"
           appendTo="body"
@@ -228,10 +245,14 @@
       </div>
 
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold uppercase text-slate-600">
+        <label
+          for="max_score"
+          class="text-xs font-bold uppercase text-slate-600"
+        >
           Score máx
         </label>
         <p-inputnumber
+          id="max_score"
           formControlName="max_score"
           [min]="1"
           [max]="1000"
@@ -270,8 +291,11 @@
 >
   <form [formGroup]="resourceForm" class="flex flex-col gap-4">
     <div class="flex flex-col gap-2">
-      <label class="text-xs font-bold uppercase text-slate-600">Curso</label>
+      <label for="course2" class="text-xs font-bold uppercase text-slate-600"
+        >Curso</label
+      >
       <p-select
+        id="course2"
         [options]="courseStore.courses()"
         optionLabel="name"
         optionValue="id"
@@ -282,8 +306,11 @@
     </div>
 
     <div class="flex flex-col gap-2">
-      <label class="text-xs font-bold uppercase text-slate-600">Lección</label>
+      <label for="lesson2" class="text-xs font-bold uppercase text-slate-600"
+        >Lección</label
+      >
       <p-select
+        id="lesson2"
         formControlName="lesson"
         [options]="lessons()"
         optionLabel="title"
@@ -294,8 +321,11 @@
     </div>
 
     <div class="flex flex-col gap-2">
-      <label class="text-xs font-bold uppercase text-slate-600">Título</label>
+      <label for="title2" class="text-xs font-bold uppercase text-slate-600"
+        >Título</label
+      >
       <input
+        id="title2"
         pInputText
         formControlName="title"
         placeholder="Lecture - Introducción a OOP"
@@ -303,8 +333,11 @@
     </div>
 
     <div class="flex flex-col gap-2">
-      <label class="text-xs font-bold uppercase text-slate-600">Tipo</label>
+      <label for="type" class="text-xs font-bold uppercase text-slate-600"
+        >Tipo</label
+      >
       <p-select
+        id="type"
         formControlName="type"
         [options]="resourceTypes"
         optionLabel="label"
@@ -314,8 +347,10 @@
     </div>
 
     <div class="flex flex-col gap-2">
-      <label class="text-xs font-bold uppercase text-slate-600">Archivo</label>
-      <input type="file" (change)="onFileSelected($event)" />
+      <label for="file" class="text-xs font-bold uppercase text-slate-600"
+        >Archivo</label
+      >
+      <input id="file" type="file" (change)="onFileSelected($event)" />
       @if (selectedFile) {
         <p class="text-xs text-slate-500">
           Seleccionado: <strong>{{ selectedFile.name }}</strong>
@@ -326,20 +361,20 @@
 
   <ng-template pTemplate="footer">
     <div class="flex justify-end gap-2 pt-2">
-    <p-button
-      label="Cancelar"
-      severity="secondary"
-      [disabled]="isUploadingResource()"
-      (onClick)="resourceDialogOpen.set(false)"
-    ></p-button>
-    <p-button
-      label="Subir"
-      icon="pi pi-upload"
-      severity="success"
-      [loading]="isUploadingResource()"
-      [disabled]="resourceForm.invalid || !selectedFile"
-      (onClick)="uploadResource()"
-    ></p-button>
+      <p-button
+        label="Cancelar"
+        severity="secondary"
+        [disabled]="isUploadingResource()"
+        (onClick)="resourceDialogOpen.set(false)"
+      ></p-button>
+      <p-button
+        label="Subir"
+        icon="pi pi-upload"
+        severity="success"
+        [loading]="isUploadingResource()"
+        [disabled]="resourceForm.invalid || !selectedFile"
+        (onClick)="uploadResource()"
+      ></p-button>
     </div>
   </ng-template>
 </p-dialog>

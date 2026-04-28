@@ -29,7 +29,7 @@ export class AcademicApiService {
   private readonly client = inject(DjangoApiClient);
 
   // ── Careers ──────────────────────────────────────────────────────
-  listCareers(page: number = 1): Observable<PaginatedResponse<Career>> {
+  listCareers(page = 1): Observable<PaginatedResponse<Career>> {
     return this.client.get<PaginatedResponse<Career>>('/api/v1/careers/', {
       params: { page },
     });
@@ -59,12 +59,11 @@ export class AcademicApiService {
   // ── Semesters ────────────────────────────────────────────────────
   listSemesters(
     careerId?: number,
-    page: number = 1,
+    page = 1,
   ): Observable<PaginatedResponse<Semester>> {
-    return this.client.get<PaginatedResponse<Semester>>(
-      '/api/v1/semesters/',
-      { params: { career: careerId, page } },
-    );
+    return this.client.get<PaginatedResponse<Semester>>('/api/v1/semesters/', {
+      params: { career: careerId, page },
+    });
   }
 
   createSemester(body: SemesterWritePayload): Observable<Semester> {
@@ -91,7 +90,7 @@ export class AcademicApiService {
   // ── Courses ──────────────────────────────────────────────────────
   listCourses(
     semesterId?: number,
-    page: number = 1,
+    page = 1,
   ): Observable<PaginatedResponse<Course>> {
     return this.client.get<PaginatedResponse<Course>>('/api/v1/courses/', {
       params: { semester: semesterId, page },
@@ -122,7 +121,7 @@ export class AcademicApiService {
   // ── Modules ──────────────────────────────────────────────────────
   listModules(
     courseId?: number,
-    page: number = 1,
+    page = 1,
   ): Observable<PaginatedResponse<AcademicModule>> {
     return this.client.get<PaginatedResponse<AcademicModule>>(
       '/api/v1/modules/',
@@ -154,7 +153,7 @@ export class AcademicApiService {
   // ── Lessons ──────────────────────────────────────────────────────
   listLessons(
     moduleId?: number,
-    page: number = 1,
+    page = 1,
   ): Observable<PaginatedResponse<Lesson>> {
     return this.client.get<PaginatedResponse<Lesson>>('/api/v1/lessons/', {
       params: { module: moduleId, page },

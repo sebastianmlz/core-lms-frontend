@@ -51,8 +51,8 @@ interface BufferedEvent {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProctoringMonitorComponent implements OnInit, OnDestroy {
-  @Input() requireCamera: boolean = true;
-  @Input() requireFullscreen: boolean = true;
+  @Input() requireCamera = true;
+  @Input() requireFullscreen = true;
 
   @ViewChild('preview') previewVideo?: ElementRef<HTMLVideoElement>;
 

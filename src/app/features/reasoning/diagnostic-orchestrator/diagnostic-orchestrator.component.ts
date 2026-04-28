@@ -5,6 +5,7 @@ import {
   effect,
   inject,
   Input,
+  OnInit,
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -62,7 +63,7 @@ type OrchestratorStep = 'select' | 'quiz' | 'waiting' | 'result';
   templateUrl: './diagnostic-orchestrator.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DiagnosticOrchestratorComponent {
+export class DiagnosticOrchestratorComponent implements OnInit {
   @Input() showCognitiveShadow = true;
 
   private readonly fb = inject(FormBuilder);
@@ -93,9 +94,6 @@ export class DiagnosticOrchestratorComponent {
   });
 
   constructor() {
-    // Initial load of quizzes
-    void this.quizStore.loadQuizzes();
-
     // Pre-fill student ID from JWT
     effect(() => {
       const token = this.sessionStore.accessToken();
@@ -164,6 +162,11 @@ export class DiagnosticOrchestratorComponent {
         this.step.set('select');
       }
     });
+  }
+
+  ngOnInit(): void {
+    // Initial load of quizzes
+    void this.quizStore.loadQuizzes();
   }
 
   private _studentId: number | null = null;

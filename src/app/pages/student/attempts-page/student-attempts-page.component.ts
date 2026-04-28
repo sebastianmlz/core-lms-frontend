@@ -19,7 +19,11 @@ import {
   AttemptAdaptiveFallback,
   AttemptAdaptivePending,
 } from '../../../entities/assessment/model/attempt.types';
-import { AdaptivePlanResponse } from '../../../entities/reasoning/model/reasoning.types';
+import {
+  AdaptivePlanResponse,
+  AdaptivePlanItem,
+} from '../../../entities/reasoning/model/reasoning.types';
+import { AdaptivePlanTimelineComponent } from '../../../features/reasoning/adaptive-plan-timeline/adaptive-plan-timeline.component';
 
 interface AttemptRow {
   id: number;
@@ -40,6 +44,7 @@ interface AttemptRow {
     TableModule,
     TagModule,
     ProgressSpinnerModule,
+    AdaptivePlanTimelineComponent,
   ],
   templateUrl: './student-attempts-page.component.html',
   styleUrl: './student-attempts-page.component.css',
@@ -61,6 +66,21 @@ export class StudentAttemptsPageComponent implements OnInit {
   // Detail mode
   readonly selectedAttempt = signal<AttemptResultResponse | null>(null);
   readonly isLoadingDetail = signal<boolean>(false);
+  readonly showPlan = signal<boolean>(false);
+
+  readonly planItems = computed<AdaptivePlanItem[]>(() => {
+    const attempt = this.selectedAttempt();
+    if (!attempt || !attempt.adaptive_plan) return [];
+    // Only return items if the plan is a success response
+    const plan = attempt.adaptive_plan as AdaptivePlanResponse;
+    return plan.items || [];
+  });
+
+  readonly planMeta = computed(() => {
+    const attempt = this.selectedAttempt();
+    if (!attempt || !attempt.adaptive_plan) return null;
+    return (attempt.adaptive_plan as AdaptivePlanResponse)._meta || null;
+  });
 
   readonly rows = computed<AttemptRow[]>(() =>
     this.attempts().map((a) => ({
@@ -121,7 +141,12 @@ export class StudentAttemptsPageComponent implements OnInit {
 
   backToList(): void {
     this.selectedAttempt.set(null);
+    this.showPlan.set(false);
     void this.router.navigate(['/student/attempts']);
+  }
+
+  togglePlan(): void {
+    this.showPlan.update((v) => !v);
   }
 
   next(): void {

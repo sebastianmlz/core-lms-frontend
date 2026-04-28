@@ -17,4 +17,71 @@ body {
   margin: 0;
   font-family: 'Segoe UI', 'Trebuchet MS', sans-serif;
   background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+  min-height: 100vh;
+}
+
+/* Global Component Fixes */
+p-button,
+p-select,
+p-datepicker,
+p-inputnumber {
+  width: 100%;
+}
+
+/* Fix for p-select: it needs to keep its internal flex context */
+p-select {
+  display: flex !important;
+}
+
+p-button,
+p-datepicker,
+p-inputnumber {
+  display: block;
+}
+
+/* Global Button Aesthetics */
+.p-button {
+  padding: 0.75rem 1.5rem !important; /* Premium default padding */
+  border-radius: 0.75rem !important;
+  font-weight: 600 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1) !important;
+}
+
+/* Refined sizes */
+.p-button-sm, 
+.p-button.p-button-sm {
+  padding: 0.5rem 1rem !important;
+}
+
+.p-button-lg,
+.p-button.p-button-lg {
+  padding: 1rem 2rem !important;
+}
+
+.p-button:not(:disabled):hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+  filter: brightness(1.05);
+}
+
+.p-button:not(:disabled):active {
+  transform: translateY(0);
+}
+
+/* Spacing fix: Ensure components have breathing room from elements above */
+/* This targets the host element to avoid breaking internal layouts */
+p-button:not(:first-child),
+p-select:not(:first-child),
+p-datepicker:not(:first-child) {
+  margin-top: 1rem;
+}
+
+/* Override margin for common horizontal layouts to prevent unwanted spacing */
+.flex > p-button,
+.grid > p-button,
+.flex-row > p-button,
+.flex > p-select,
+.grid > p-select {
+  margin-top: 0 !important;
 }

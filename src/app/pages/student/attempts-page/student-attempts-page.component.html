@@ -27,7 +27,7 @@
       >
         <div class="flex items-center justify-between">
           <h2 class="text-xl font-bold text-slate-800">
-            Intento #{{ attempt.id }}
+            Detalle del Resultado
           </h2>
           @if (attempt.is_submitted) {
             <p-tag value="Enviado" severity="success"></p-tag>
@@ -38,10 +38,10 @@
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
-            <p class="text-xs text-slate-500 font-semibold uppercase">
-              Quiz ID
+            <p class="text-xs text-slate-500 font-semibold uppercase">Fecha</p>
+            <p class="font-bold text-slate-800">
+              {{ attempt.start_time | date: 'shortDate' }}
             </p>
-            <p class="font-bold text-slate-800">{{ attempt.quiz }}</p>
           </div>
           <div>
             <p class="text-xs text-slate-500 font-semibold uppercase">Inicio</p>
@@ -88,22 +88,65 @@
         <!-- Adaptive Plan -->
         @if (attempt.adaptive_plan) {
           <div
-            class="rounded-xl bg-teal-50 border border-teal-200 p-4 space-y-2"
+            class="rounded-xl bg-teal-50 border border-teal-200 p-6 space-y-4 shadow-sm"
           >
-            <h3 class="text-sm font-bold text-teal-800">Plan Adaptativo IA</h3>
-            @switch (classifyPlan(attempt)) {
-              @case ('success') {
-                <p-tag value="Plan Generado" severity="success"></p-tag>
-              }
-              @case ('fallback') {
-                <p-tag value="Plan Fallback" severity="warn"></p-tag>
-              }
-              @case ('pending') {
-                <p-tag value="Procesando..." severity="info"></p-tag>
-              }
-              @default {
-                <p-tag value="Sin plan" severity="secondary"></p-tag>
-              }
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div
+                  class="h-10 w-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-600"
+                >
+                  <i class="pi pi-bolt text-xl"></i>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-teal-900">
+                    Plan Adaptativo IA
+                  </h3>
+                  <p class="text-xs text-teal-700">
+                    Ruta de aprendizaje personalizada basada en tus fallos
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3">
+                @switch (classifyPlan(attempt)) {
+                  @case ('success') {
+                    <p-button
+                      [label]="
+                        showPlan() ? 'Ocultar Plan' : 'Ver Plan de Estudio'
+                      "
+                      [icon]="
+                        showPlan() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'
+                      "
+                      severity="success"
+                      [outlined]="!showPlan()"
+                      size="small"
+                      (onClick)="togglePlan()"
+                    ></p-button>
+                  }
+                  @case ('fallback') {
+                    <p-tag value="Plan Fallback" severity="warn"></p-tag>
+                  }
+                  @case ('pending') {
+                    <p-tag value="Procesando..." severity="info"></p-tag>
+                  }
+                  @default {
+                    <p-tag value="Sin plan" severity="secondary"></p-tag>
+                  }
+                }
+              </div>
+            </div>
+
+            @if (showPlan() && planItems().length > 0) {
+              <div class="mt-6 border-t border-teal-100 pt-6 animate-fadein">
+                <app-adaptive-plan-timeline
+                  [items]="planItems()"
+                  [lastAttemptId]="attempt.id"
+                ></app-adaptive-plan-timeline>
+              </div>
+            } @else if (showPlan() && planItems().length === 0) {
+              <p class="text-sm text-teal-600 italic text-center py-4">
+                No hay items específicos generados para este plan.
+              </p>
             }
           </div>
         }
@@ -160,33 +203,27 @@
       >
         <ng-template pTemplate="header">
           <tr>
-            <th>ID</th>
-            <th>Quiz</th>
-            <th>Inicio</th>
-            <th>Fin</th>
-            <th>Score</th>
-            <th>Estado</th>
-            <th>Plan IA</th>
-            <th></th>
+            <th>Fecha</th>
+            <th class="text-center">Score</th>
+            <th class="text-center">Estado</th>
+            <th class="text-center">Plan IA</th>
+            <th class="text-right">Acciones</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-row>
           <tr>
-            <td class="font-mono text-xs">{{ row.id }}</td>
-            <td>{{ row.quiz }}</td>
             <td>{{ row.start_time | date: 'short' }}</td>
-            <td>
-              {{ row.end_time ? (row.end_time | date: 'short') : '—' }}
+            <td class="text-center font-bold text-indigo-600">
+              {{ row.final_score ?? '—' }}
             </td>
-            <td>{{ row.final_score ?? '—' }}</td>
-            <td>
+            <td class="text-center">
               @if (row.is_submitted) {
                 <p-tag value="Enviado" severity="success"></p-tag>
               } @else {
                 <p-tag value="En curso" severity="warn"></p-tag>
               }
             </td>
-            <td>
+            <td class="text-center">
               @switch (row.planStatus) {
                 @case ('success') {
                   <p-tag value="Listo" severity="success"></p-tag>
@@ -202,7 +239,7 @@
                 }
               }
             </td>
-            <td>
+            <td class="text-right">
               <p-button
                 label="Revisar"
                 icon="pi pi-eye"

@@ -6,7 +6,7 @@
       Evaluacion Diagnostica -> Ruta Adaptativa
     </h2>
     <p class="text-sm text-slate-600">
-      Envia un intento de quiz a Django para activar scoring y recuperar la ruta
+      Envia un intento de quiz para activar scoring y recuperar la ruta
       adaptativa en un flujo hibrido.
     </p>
   </header>
@@ -57,10 +57,7 @@
     </div>
 
     @if (quizStore.error()) {
-      <p class="text-sm font-medium text-red-600">
-        Error al cargar quizzes: Revisa si el backend de Django está corriendo
-        (localhost:8000).
-      </p>
+      <p class="text-sm font-medium text-red-600">Error al cargar quizzes</p>
     }
 
     @if (quizStore.isLoadingDetail()) {
@@ -316,7 +313,7 @@
       >
         <header class="mb-4">
           <h3 class="text-lg font-bold text-slate-800">
-            Sombra Cognitiva Resolutiva (PUDS)
+            Sombra Cognitiva Resolutiva
           </h3>
           <p class="text-sm text-slate-500">
             Jerarquía del aprendizaje evaluado, usado para estructurar los

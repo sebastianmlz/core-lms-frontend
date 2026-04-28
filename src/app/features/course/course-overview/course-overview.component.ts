@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   Input,
+  OnInit,
   inject,
 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -29,7 +30,7 @@ import {
   styleUrl: './course-overview.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CourseOverviewComponent {
+export class CourseOverviewComponent implements OnInit {
   @Input() enableTutorAnalytics = false;
   @Input() inline = false;
 
@@ -39,7 +40,7 @@ export class CourseOverviewComponent {
   private readonly quizApi = inject(QuizApiService);
   private readonly router = inject(Router);
 
-  constructor() {
+  ngOnInit(): void {
     void this.courseStore.loadCourses();
   }
 

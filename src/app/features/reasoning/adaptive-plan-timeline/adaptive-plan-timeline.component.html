@@ -35,9 +35,7 @@
             Latencia Bedrock: {{ llmLatencyMs }} ms
           </p>
           @if (lastAttemptId) {
-            <p class="text-xs text-sky-600">
-              Intento analizado: #{{ lastAttemptId }}
-            </p>
+            <p class="text-xs text-sky-600">Analisis cognitivo completado</p>
           }
         </div>
       }
@@ -51,7 +49,7 @@
           <div class="flex items-center gap-2 mb-3">
             <span
               class="bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1 rounded-full"
-              >Paso {{ item.priority }}</span
+              >Punto Clave</span
             >
             <h4 class="text-base font-semibold text-slate-800 m-0">
               {{ item.topic }}

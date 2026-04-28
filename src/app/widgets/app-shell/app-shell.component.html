@@ -7,9 +7,9 @@
     class="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur"
   >
     <div
-      class="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3"
+      class="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-4 py-3"
     >
-      <div class="flex-1">
+      <div>
         <a
           routerLink="/"
           class="flex items-center gap-3 no-underline group w-fit"
@@ -27,7 +27,7 @@
         </a>
       </div>
 
-      <div class="hidden md:flex flex-1 justify-center items-center">
+      <div class="hidden md:flex justify-center items-center">
         <div
           class="flex items-center gap-3 px-5 py-2 rounded-full bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow cursor-default"
         >
@@ -42,7 +42,7 @@
         </div>
       </div>
 
-      <div class="flex-1 flex items-center justify-end gap-3">
+      <div class="flex items-center justify-end gap-3">
         @if (sessionStore.activeRole() === 'STUDENT') {
           <a
             routerLink="/student/attempts"

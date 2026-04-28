@@ -45,7 +45,12 @@ export class CognitiveShadowComponent
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['graph'] && this.viewReady) {
-      this.render();
+      // Defer to a microtask so Angular's pending DOM update (the @if branch
+      // that hosts <div #cyHost>) settles before we read this.cyHost. Without
+      // this, the first transition from null → populated graph runs render()
+      // while the host element is still absent from the view, the early
+      // guard returns, and Cytoscape never initializes.
+      queueMicrotask(() => this.render());
     }
   }
 

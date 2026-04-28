@@ -68,7 +68,7 @@
               @if (row.is_submitted) {
                 <p-tag value="Enviado" severity="success"></p-tag>
               } @else {
-                <p-tag value="En curso" severity="warning"></p-tag>
+                <p-tag value="En curso" severity="warn"></p-tag>
               }
             </td>
             <td>
@@ -77,7 +77,7 @@
                   <p-tag value="Listo" severity="success"></p-tag>
                 }
                 @case ('fallback') {
-                  <p-tag value="Fallback" severity="warning"></p-tag>
+                  <p-tag value="Fallback" severity="warn"></p-tag>
                 }
                 @case ('pending') {
                   <p-tag value="Procesando" severity="info"></p-tag>
